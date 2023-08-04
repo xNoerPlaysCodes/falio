@@ -12,7 +12,8 @@ def get_commands(client):
         ),
         "help": discord.Embed(
             title="Help Menu",
-            description="Hey, I'm just a work in progress so don't expect me to work!",
+            description=";hello\n;ping\n;embedlol\n;help (This!)\n;random",
+            # \n is for newline, simply pressing enter won't work.
             color=discord.Color(int("AF27E4", 16))
         ),
         "random": discord.Embed(
