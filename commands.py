@@ -3,7 +3,7 @@ import discord
 def get_commands(client):
     commands = {
         "hello": f"Hello there, I'm {client.user}",
-        "ping": "pong",
+        "ping": f"Pong! {round(client.latency * 1000)}ms",
         "embedlol": discord.Embed(
             title="A discord embed.",
             description="A discord description by noerlol",
