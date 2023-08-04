@@ -6,4 +6,5 @@ Yes, I'm abandoning MBGTK the Java Version. I cannot maintain it simply for the 
 Yeah I have to use my arch enemy but it's ok 😭
 # How to use?
 Step 1: Get bot token and put in config.txt INSIDE the '
-Step 2: python3 ./main.py if you're on linux/macos or python main.py on windows\nStep 3: Enjoy this half assed bot.
+Step 2: python3 ./main.py if you're on linux/macos or python main.py on windows
+Step 3: Enjoy this half assed bot.
