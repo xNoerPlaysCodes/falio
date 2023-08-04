@@ -1,6 +1,6 @@
 import discord
 # enter bot token here:
-tokenBot = "MTEzNjY3MDEyODExNzkxOTc1NA.GfXg7h._Ds7M7LsPNLg8WvfoNsBD2i4b7QKbegY0oUQHU"
+tokenBot = "Bot Token Here"
 intents = discord.Intents.default()
 intents.message_content = True  # Allows the bot to receive message events
 PREFIX = ";"
