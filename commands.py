@@ -1,4 +1,5 @@
 import discord
+import random
 
 def get_commands(client):
     commands = {
@@ -12,6 +13,11 @@ def get_commands(client):
         "help": discord.Embed(
             title="Help Menu",
             description="Hey, I'm just a work in progress so don't expect me to work!",
+            color=discord.Color(int("AF27E4", 16))
+        ),
+        "random": discord.Embed(
+            title="Random",
+            description=f"Your random number is.... {random.random()}",
             color=discord.Color(int("AF27E4", 16))
         ),
     }
