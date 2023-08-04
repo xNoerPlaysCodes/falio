@@ -1,6 +1,10 @@
 import discord
-# enter bot token here:
-tokenBot = "Bot Token Here"
+with open("config.txt") as config:
+    for line in config:
+        if line.startswith("token"):
+            token = line.strip().split('=', 1)
+            tokenBot = line.strip().strip("'")
+            break
 intents = discord.Intents.default()
 intents.message_content = True  # Allows the bot to receive message events
 PREFIX = ";"
