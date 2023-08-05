@@ -12,6 +12,7 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
     print(f"Logged in as {client.user}")
+    await client.change_presence(activity=discord.Game(name=';help'))
 
 # Event: When a message is received in a server the bot is a part of
 @client.event
