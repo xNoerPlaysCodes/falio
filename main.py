@@ -11,7 +11,7 @@ client = discord.Client(intents=intents)
 # Event: When the bot is ready and connected to Discord
 @client.event
 async def on_ready():
-    print(f"We have logged in as {client.user}")
+    print(f"Logged in as {client.user}")
 
 # Event: When a message is received in a server the bot is a part of
 @client.event
