@@ -1,5 +1,7 @@
 import discord
 import random
+from var import footer_text as footer
+# ^^^^^^^^^^^^^^^^^^^ This is the Bot by noerlol thingy, you can edit if you want.
 
 def get_commands(client):
     commands = {
@@ -13,7 +15,6 @@ def get_commands(client):
         "help": discord.Embed(
             title="Help Menu",
             description=";hello\n;ping\n;embedlol\n;help (This!)\n;random",
-            # \n is for newline, simply pressing enter won't work.
             color=discord.Color(int("AF27E4", 16))
         ),
         "random": discord.Embed(
@@ -24,5 +25,5 @@ def get_commands(client):
     }
     # Set the footer using the set_footer method
     commands["embedlol"].set_footer(text="ma foot")
-    commands["help"].set_footer(text="Bot by noerlol#0000")
+    commands["help"].set_footer(text=footer)
     return commands
