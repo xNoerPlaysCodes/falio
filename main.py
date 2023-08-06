@@ -17,7 +17,7 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
     print(f"Successful login as {client.user}.")
-    await client.change_presence(activity=discord.Game(name=';help'))
+    await client.change_presence(activity=discord.Game(name='{PREFIX}help'))
 
 # Event: When a message is received in a server the bot is a part of
 @client.event
@@ -32,8 +32,6 @@ async def on_message(message):
         else:
             print("A user tried to stop the bot while not being owner.")
             await message.channel.send(f"Sorry, you're not the owner of the bot, if you think this is a mistake edit the var.py file and replace the blank with username. You are {message.author} and from var.py is {owner}")
-    if message.content== ";testomgmsg":
-        print(f"{message.author}")
     # Split the message into the command and arguments
     parts = message.content.split(" ", 1)
     command = parts[0].lower()
