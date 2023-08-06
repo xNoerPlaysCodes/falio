@@ -25,7 +25,7 @@ async def on_message(message):
     # Ignore messages from the bot itself to avoid an infinite loop
     if message.author == client.user:
         return
-    if message.content == ";stopthebotrightnow":
+    if message.content == f"{PREFIX}stopthebotrightnow":
         if message.author.name == owner:
             stopBot(message)
             print(f"{message.author} directed the stopping of the bot.")
