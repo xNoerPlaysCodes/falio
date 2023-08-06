@@ -2,6 +2,7 @@ import discord
 import random
 import sys
 from var import footer_text as footer
+from var import PREFIX
 # ^^^^^^^^^^^^^^^^^^^ This is the Bot by noerlol thingy, you can edit if you want.
 
 def stopBot():
@@ -27,8 +28,8 @@ def get_commands(client):
             color=discord.Color(int("AF27E4", 16))
         ),
         "about": discord.Embed(
-        title="Ey!",
-        description="Hi I'm noer, a 16 year old developer that can code in Java and Python.",
+        title="MBGTK.py",
+        description=f"Hey! I'm a open source discord bot designed for general purposes developed by xNoerPlays. You can find me on https://github.com/xNoerPlaysCodes/mbgtk-python/ This specific one's prefix is {PREFIX}.",
         color=discord.Color(int("AF27E4", 16)),
         ),
 #       "stopthebotrightnow": This is defined in main.py Line 28
