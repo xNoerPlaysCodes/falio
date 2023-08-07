@@ -1,9 +1,16 @@
+# commands.py
+
 import discord
 import random
 import sys
 from var import footer_text as footer
 from var import PREFIX
+from var import api_key
 # ^^^^^^^^^^^^^^^^^^^ This is the Bot by noerlol thingy, you can edit if you want.
+if api_key == "API_KEY_HERE":
+    meme_enabled = "false"
+else:
+    meme_enabled = "true"
 
 def stopBot():
     sys.exit(0)
@@ -19,7 +26,16 @@ def get_commands(client):
         ),
         "help": discord.Embed(
             title="Help Menu",
-            description=";hello\n;ping\n;embedlol\n;help (This!)\n;random",
+            description=f"""
+            {PREFIX}hello
+            {PREFIX}ping
+            {PREFIX}embedlol
+            {PREFIX}help (This!)
+            {PREFIX}random
+            {PREFIX}meme (Is meme enabled? -> {meme_enabled})
+            {PREFIX}settag (Tag)
+            ^^^^^^^^^^^^^^^^^^^^ Sets Gifs what will be about to (Tag)
+            """,
             color=discord.Color(int("AF27E4", 16))
         ),
         "random": discord.Embed(
@@ -33,6 +49,8 @@ def get_commands(client):
         color=discord.Color(int("AF27E4", 16)),
         ),
 #       "stopthebotrightnow": This is defined in main.py Line 28
+#       "meme": Meme command defined in main.py
+#       "settag": Defined in main.py
     }
     # Set the footer using the set_footer method
     commands["embedlol"].set_footer(text="ma foot")
