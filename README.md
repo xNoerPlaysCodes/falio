@@ -7,4 +7,4 @@ Yeah I have to use my arch enemy but it's ok 😭
 
 # How to use?
 Download main.py and var.py and user_tickets.json
-Then, start main.py using your preferred operating system syntax (ie Linux is `python3 ./main.py`, Windows is `python .\main.py` in powershell window)
+Then, start main.py using your preferred operating system syntax (ie Linux & Mac is `python3 ./main.py`, Windows is `python .\main.py` in powershell window)
