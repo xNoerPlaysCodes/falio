@@ -1,3 +1,4 @@
+// Just put this file with these contents in the same directory as main.py and var.py
 {
     "users_with_tickets": {}
 }
