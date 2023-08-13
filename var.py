@@ -1,6 +1,6 @@
-#       ii           iii    BBBBBBBBBBB     GGGGGGGGGGGGGG      TTTTTTTTTTTTTTTTT       K   K
-#       iii         iiii    B         B     G                           T               K  K
-#       iiiii      iiiii    B         B     G                           T               K K
+#       ii           iii    BBBBBBBBBBB     GGGGGGGGGGGGGG      TTTTTTTTTTTTTTTTT       K      K
+#       iii         iiii    B         B     G                           T               K    K
+#       iiiii      iiiii    B         B     G                           T               K  K
 #       iiiiiii   iiiiii    B         B     G                           T               KKK
 #       iiiiiiiiiiiiiiii    BBBBBBBBBB      G                           T               K  K
 #       i              i    B         B     GGGGGGGGGGGGG               T               K   K
@@ -31,7 +31,7 @@ intents = discord.Intents.default()
 intents.message_content = True  # Allows the bot to receive message events
 if tokenBot == "BOT_TOKEN_HERE":
     ThrowIllegalExeception()
-PREFIX = ";" # should not contain spaces after so 'owo! ' invalid while 'owo!' is vaid
+PREFIX = "!"
 prcount = len(PREFIX)
 if prcount > 5:
     hardPrefixMaxCharCount()
