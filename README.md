@@ -1,5 +1,5 @@
 # mbgtk-python
-This is a discord bot in python, made by me, Noer completely in python. No xNoerPlaysCodes/mbgtk is not going to be maintained anymore this is the new one :)
+A discord bot in python, by Noer.
 
 # How to use?
 Download main.py and var.py and user_tickets.json
