@@ -1,6 +1,6 @@
-#       ii           iii    BBBBBBBBBBB     GGGGGGGGGGGGGG      TTTTTTTTTTTTTTTTT       K   K
-#       iii         iiii    B         B     G                           T               K  K
-#       iiiii      iiiii    B         B     G                           T               K K
+#       ii           iii    BBBBBBBBBBB     GGGGGGGGGGGGGG      TTTTTTTTTTTTTTTTT       K      K
+#       iii         iiii    B         B     G                           T               K    K
+#       iiiii      iiiii    B         B     G                           T               K  K
 #       iiiiiii   iiiiii    B         B     G                           T               KKK
 #       iiiiiiiiiiiiiiii    BBBBBBBBBB      G                           T               K  K
 #       i              i    B         B     GGGGGGGGGGGGG               T               K   K
@@ -10,6 +10,9 @@
 #                                                                                                   .py
 #
 # main.py
+
+# VERSON=4r
+# R = REVISED.
 
 # Importing Packages
 import discord
@@ -25,6 +28,7 @@ from var import owner
 from var import api_key
 from var import footer_text as footer
 from var import PlayingGame
+from banned_users import users_banned
 
 blank = ""
 
@@ -46,6 +50,9 @@ helpMenu = f"""
 `{PREFIX}ticket-rm` - Removes your ticket if you have one
 ```FUN RELATED```
 `{PREFIX}say <msg>` - Says that message!
+[ OWNER-ONLY COMMAND ]\* `{PREFIX}osay <msg>` Says that message without who said it.
+
+\*Owner of this bot is {owner}
             """
 
 # DEFINTIONS OF CUST_FUNC
@@ -112,105 +119,105 @@ async def on_message(message):
     # Ignore messages from other bots too
     if isBot(message.author):
         return
-
-    if message.content == f"{PREFIX}stopthebotrightnow":
-        if message.author.name == owner:
-            stopBot(message)
-            print(f"{message.author} directed the stopping of the bot.")
-        else:
-            print("A user tried to stop the bot while not being owner.")
-            await message.channel.send(f"Sorry, you're not the owner of the bot, if you think this is a mistake edit the var.py file and replace the blank with username. You are {message.author} and from var.py is {owner}")
-
-    global tag  # Declare the global tag variable to change it if needed
-
-    if message.content.startswith(f"{PREFIX}settag "):
-        tag = message.content[len(f"{PREFIX}settag "):]
-        await message.channel.send(f"Tag set to `{tag}`.")
-    elif message.content == f"{PREFIX}meme":
-        if meme_enabled == "true":
-            await message.channel.send(f"Tag is {tag}")
-            gif_url = await fetch_gif_with_tag(tag)
-            if gif_url:
-                await message.channel.send(gif_url)
+    if message.author.name in users_banned:
+        await message.channel.send("You are banned from using this bot.")
+    else:
+        if message.content == f"{PREFIX}stopthebotrightnow":
+            if message.author.name == owner:
+                stopBot(message)
+                print(f"{message.author} directed the stopping of the bot.")
             else:
-                await message.channel.send("Oops, something went wrong while fetching the GIF.")
-        elif meme_enabled == "false":
-            await message.channel.send("Meme functionality is not configured in var.py, please change that.")
-    elif message.content == f"{PREFIX}help":
-        embed = discord.Embed(
-            title="Help Menu",
-            description=helpMenu,
-            color=discord.Color(int("AF27E4", 16)),
-        )
-        embed.set_footer(text=footer),
-        await message.channel.send(embed=embed)
-    elif message.content == f"{PREFIX}hello":
-        await message.channel.send(f"Hello there, I'm {client.user}!")
-    elif message.content == f"{PREFIX}ping":
-        await message.channel.send(f"Pong! {round(client.latency * 1000)}ms")
-    elif message.content == f"{PREFIX}random":
-        embed = discord.Embed(
-            title="Random Number",
-            description=f"Your random number is..... {round(random.random() * 1000)}",
-        color=discord.Color(int("AF27E4", 16)),
-    )
-        embed.set_footer(text=footer),
-        await message.channel.send(embed=embed)
+                print("A user tried to stop the bot while not being owner.")
+                await message.channel.send(f"Sorry, you're not the owner of the bot, if you think this is a mistake edit the var.py file and replace the blank with username. You are {message.author} and from var.py is {owner}")
+        global tag  # Declare the global tag variable to change it if needed
 
-    elif message.content == f"{PREFIX}ticket-add":
-        author_name = message.author.name
-        user_data = loadHasTicket()
-
-        if user_data["users_with_tickets"].get(author_name):
-            await message.channel.send("You already have a ticket.")
-            await message.delete()
-        else:
-            user_data["users_with_tickets"][author_name] = True
-            saveHasTicket(user_data)
-            await message.channel.send("Ticket created.")
-            guild = message.guild
-            await guild.create_text_channel(f"ticket-{message.author.name}")
-            await message.delete()
-    elif message.content == f"{PREFIX}ticket-rm":
-        author_name = message.author.name
-        user_data = loadHasTicket()
-
-        if user_data["users_with_tickets"].get(author_name):
-            user_data["users_with_tickets"].pop(author_name)
-            saveHasTicket(user_data)
-
-            # Find the channel associated with the user's ticket
-            for channel in message.guild.channels:
-                if channel.name.startswith(f"ticket-{author_name}"):
-                    await channel.delete()
-                    await message.channel.send("Ticket removed.")
-                    await message.delete()
-                    return
-
-            await message.channel.send("Ticket channel not found.")
-        else:
-            await message.channel.send("You don't have a ticket to remove.")
-    elif message.content.startswith(f"{PREFIX}say "):
-        sayMsg = message.content[len(f"{PREFIX}say "):]
-        if sayMsg == blank:
-            await message.channel.send(f"You did not add anything after {PREFIX}say")
-            await message.delete()
-        else:
+        if message.content.startswith(f"{PREFIX}settag "):
+            tag = message.content[len(f"{PREFIX}settag "):]
+            await message.channel.send(f"Tag set to `{tag}`.")
+        elif message.content == f"{PREFIX}meme":
+            if meme_enabled == "true":
+                await message.channel.send(f"Tag is {tag}")
+                gif_url = await fetch_gif_with_tag(tag)
+                if gif_url:
+                    await message.channel.send(gif_url)
+                else:
+                    await message.channel.send("Oops, something went wrong while fetching the GIF.")
+            elif meme_enabled == "false":
+                await message.channel.send("Meme functionality is not configured in var.py, please change that.")
+        elif message.content == f"{PREFIX}help":
             embed = discord.Embed(
-                title=f"{message.author.name} said....",
-                description=sayMsg,
-            color=discord.Color(int("AF27E4", 16)),
+                title="Help Menu",
+                description=helpMenu,
+                color=discord.Color(int("AF27E4", 16)),
             )
             embed.set_footer(text=footer),
             await message.channel.send(embed=embed)
-            await message.delete()
-    elif message.content.startswith(f"{PREFIX}sayOwner "):
-        if message.author.name == f"{owner}":
-            sayMsg = message.content[len(f"{PREFIX}sayOwner "):]
-            await message.channel.send(sayMsg)
-            await message.delete()
-        else:
-            return
+        elif message.content == f"{PREFIX}hello":
+            await message.channel.send(f"Hello there, I'm {client.user}!")
+        elif message.content == f"{PREFIX}ping":
+            await message.channel.send(f"Pong! {round(client.latency * 1000)}ms")
+        elif message.content == f"{PREFIX}random":
+            embed = discord.Embed(
+                title="Random Number",
+                description=f"Your random number is..... {round(random.random() * 1000)}",
+            color=discord.Color(int("AF27E4", 16)),
+        )
+            embed.set_footer(text=footer),
+            await message.channel.send(embed=embed)
 
+        elif message.content == f"{PREFIX}ticket-add":
+            author_name = message.author.name
+            user_data = loadHasTicket()
+
+            if user_data["users_with_tickets"].get(author_name):
+                await message.channel.send("You already have a ticket.")
+                await message.delete()
+            else:
+                user_data["users_with_tickets"][author_name] = True
+                saveHasTicket(user_data)
+                await message.channel.send("Ticket created.")
+                guild = message.guild
+                await guild.create_text_channel(f"ticket-{message.author.name}")
+                await message.delete()
+        elif message.content == f"{PREFIX}ticket-rm":
+            author_name = message.author.name
+            user_data = loadHasTicket()
+
+            if user_data["users_with_tickets"].get(author_name):
+                user_data["users_with_tickets"].pop(author_name)
+                saveHasTicket(user_data)
+
+                # Find the channel associated with the user's ticket
+                for channel in message.guild.channels:
+                    if channel.name.startswith(f"ticket-{author_name}"):
+                        await channel.delete()
+                        await message.channel.send("Ticket removed.")
+                        await message.delete()
+                        return
+
+                await message.channel.send("Ticket channel not found.")
+            else:
+                await message.channel.send("You don't have a ticket to remove.")
+        elif message.content.startswith(f"{PREFIX}say "):
+            sayMsg = message.content[len(f"{PREFIX}say "):]
+            if sayMsg == blank:
+                await message.channel.send(f"You did not add anything after {PREFIX}say")
+                await message.delete()
+            else:
+                embed = discord.Embed(
+                    title=f"{message.author.name} said....",
+                    description=sayMsg,
+                color=discord.Color(int("AF27E4", 16)),
+                )
+                embed.set_footer(text=footer),
+                await message.channel.send(embed=embed)
+                await message.delete()
+        elif message.content.startswith(f"{PREFIX}osay "):
+            if message.author.name == f"{owner}":
+                sayMsg = message.content[len(f"{PREFIX}osay "):]
+                await message.channel.send(sayMsg)
+                await message.delete()
+            else:
+                return
 # Run the bot with the provided token
 client.run(TOKEN)
