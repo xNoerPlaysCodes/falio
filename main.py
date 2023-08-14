@@ -30,6 +30,8 @@ from var import footer_text as footer
 from var import PlayingGame
 from banned_users import users_banned
 
+version = "PR-3"
+
 blank = ""
 
 if api_key == "API_KEY_HERE":
@@ -209,7 +211,6 @@ async def on_message(message):
                     description=sayMsg,
                 color=discord.Color(int("AF27E4", 16)),
                 )
-                embed.set_footer(text=footer),
                 await message.channel.send(embed=embed)
                 await message.delete()
         elif message.content.startswith(f"{PREFIX}osay "):
@@ -219,5 +220,34 @@ async def on_message(message):
                 await message.delete()
             else:
                 return
+        elif message.content.lower().startswith("mbgtk su"):
+            await message.channel.send("Nope.")
+        elif message.content == f"{PREFIX}about":
+            embed = discord.Embed(
+                description=f"""
+Hi, I'm MBGTK! I am an open-source discord bot designed to help you reduce to bots in your server! Efficiently at that! Invite me here! I hope you enjoy this bot :3
+
+[Github Page](https://github.com/xNoerPlaysCodes/mbgtk-python/)
+[Official Website](https://xnoerplayscodes.github.io/index.html)
+
+Credits:
+xNoerPlays (noerlol#0) - Lead Developer
+Techbox (teckbox#0) - Ideas and the sole idea for this bot was his.
+Xavier (frlnamra#0) - Emotional Support XD / Tester of Bot
+sam/sammy (@.zqkarl#0) - Logo maker 😍😍😍😍😍😍😍
+
+❤️❤️❤️❤️❤️❤️❤️ This took a long time, so consider DMing me (or any of the members above) to give them a happy thankyou <3
+
+Other information:
+Global Bot Prefix: `{PREFIX}`
+Version: `{version}`
+Python Version: {sys.version}
+""",
+            color=discord.Color(int("AF27E4", 16)),
+            )
+            embed.set_footer(text="Made with love in discord.py"),
+            await message.channel.send(embed=embed)
+
+
 # Run the bot with the provided token
 client.run(TOKEN)
