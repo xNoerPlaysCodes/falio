@@ -65,7 +65,7 @@ sam/sammy (@.zqkarl#0) - Logo maker 😍😍😍😍😍😍😍
 
 Other information:
 Global Bot Prefix: `{PREFIX}`
-Global Bot Version: `{version}`
+Based on MBGTK.py version {version}
 Hosting Python Version: ||{sys.version}||
 """
 ##########################
