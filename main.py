@@ -8,55 +8,67 @@
 #       i              i    B         B     G           G               T               K      K
 #       i              i    BBBBBBBBBBB     GGGGGGGGGGGGG               T               K       K
 #                                                                                                   .py
-#
+# Despite it's stupid name, this bot is the best bot you have ever seen. Moderation, Fun, Utilities... We've got it all
+# Invite me today at https://bit.ly/mbgtk (OR PUT GITHUB PAGE)
 # main.py
 
-# VERSON=4r
-# R = REVISED.
-
 # Importing Packages
-import discord
-import sys
-import requests
-import random
-import os
-import json
+import discord, sys, requests, random, os, json, asyncio
 # Importing variables from var.py
 from var import tokenBot as TOKEN
-from var import PREFIX
-from var import owner
-from var import api_key
 from var import footer_text as footer
-from var import PlayingGame
+from var import PREFIX, owner, api_key, PlayingGame
+## banned users importing
 from banned_users import users_banned
-
-version = "PR-3"
-
-blank = ""
-
+################# CHECKS
 if api_key == "API_KEY_HERE":
     meme_enabled = "false"
 else:
     meme_enabled = "true"
+########################
+##################### VARIABLES
+version = "PR-4"
+blank = ""
 
 helpMenu = f"""
-`{PREFIX}hello` - Hello!
+```Main```
 `{PREFIX}ping` - Returns Client Latency.
 `{PREFIX}help` - This!
 `{PREFIX}random` - Returns a random number 100-1000
-```GIF RELATED```
+```Giphy Integration```
 `{PREFIX}meme` - Returns a gif from giphy (Is meme enabled -> {meme_enabled})
 `{PREFIX}settag` <tag> - Sets tag to the message you put in <tag>
-```UTILITY RELATED```
+```Utility```
 `{PREFIX}ticket-add` - Creates a ticket
 `{PREFIX}ticket-rm` - Removes your ticket if you have one
-```FUN RELATED```
+`{PREFIX}userinfo @user` - Returns user information of user, no ping of user will return userinfo about message author.
+`{PREFIX}serverinfo` - Returns guild information.
+```Fun```
 `{PREFIX}say <msg>` - Says that message!
 [ OWNER-ONLY COMMAND ]\* `{PREFIX}osay <msg>` Says that message without who said it.
 
 \*Owner of this bot is {owner}
             """
+aboutCommandMenu = f"""
+Hi, I'm MBGTK! I am an open-source discord bot designed to help you reduce the bots in your server.
 
+[Github Page](https://github.com/xNoerPlaysCodes/mbgtk-python/)
+[Official Website](https://xnoerplayscodes.github.io/index.html)
+
+Credits:
+xNoerPlays (noerlol#0) - Lead Developer
+Techbox (teckbox#0) - Ideas and the sole idea for this bot was his.
+Xavier (frlnamra#0) - Emotional Support XD / Tester of Bot
+sam/sammy (@.zqkarl#0) - Logo maker 😍😍😍😍😍😍😍
+
+❤️❤️❤️❤️❤️❤️❤️ This took a long time, so consider DMing me (or any of the members above) to give them a happy thankyou <3
+
+Other information:
+Global Bot Prefix: `{PREFIX}`
+Global Bot Version: `{version}`
+Hosting Python Version: ||{sys.version}||
+"""
+##########################
 # DEFINTIONS OF CUST_FUNC
 def loadHasTicket():
     filename = "user_tickets.json"
@@ -75,6 +87,8 @@ def stopBot(message):
 
 def isBot(user):
     return user.bot
+
+
 #########################
 tag = "random funny"
 
@@ -224,30 +238,65 @@ async def on_message(message):
             await message.channel.send("Nope.")
         elif message.content == f"{PREFIX}about":
             embed = discord.Embed(
-                description=f"""
-Hi, I'm MBGTK! I am an open-source discord bot designed to help you reduce to bots in your server! Efficiently at that! Invite me here! I hope you enjoy this bot :3
-
-[Github Page](https://github.com/xNoerPlaysCodes/mbgtk-python/)
-[Official Website](https://xnoerplayscodes.github.io/index.html)
-
-Credits:
-xNoerPlays (noerlol#0) - Lead Developer
-Techbox (teckbox#0) - Ideas and the sole idea for this bot was his.
-Xavier (frlnamra#0) - Emotional Support XD / Tester of Bot
-sam/sammy (@.zqkarl#0) - Logo maker 😍😍😍😍😍😍😍
-
-❤️❤️❤️❤️❤️❤️❤️ This took a long time, so consider DMing me (or any of the members above) to give them a happy thankyou <3
-
-Other information:
-Global Bot Prefix: `{PREFIX}`
-Version: `{version}`
-Python Version: {sys.version}
-""",
+                description=aboutCommandMenu,
             color=discord.Color(int("AF27E4", 16)),
             )
-            embed.set_footer(text="Made with love in discord.py"),
+            embed.set_footer(text=f"Made with love in discord.py | {footer}"),
+            await message.channel.send(embed=embed)
+        elif message.content == f"{PREFIX}serverinfo":
+            guild = message.guild
+            # Gets emojis as formatted
+            emojis = ", ".join([str(emoji) for emoji in guild.emojis])
+
+            # Gets roles as formatted
+            roles = ", ".join([role.mention for role in guild.roles])
+            embed = discord.Embed(
+                title="Server Information",
+                description=f"""
+```Main Info```
+Guild is {guild}
+Server ID - {guild.id}
+Server Name - {guild.name}
+Server Description - {guild.description}
+```Other```
+Server Member Count - {str(guild.member_count)}
+Server Boost Count - {int(guild.premium_subscription_count)}
+Server Boost Level - {guild.premium_tier}
+Server Emojis - (Click to expose spoiler) ||{emojis}||
+Server Roles - {roles}
+    """,
+    color=discord.Color(int("AF27E4", 16)),
+        )
+            embed.set_thumbnail(url=f"{guild.icon}")
+            embed.set_footer(text=footer)
             await message.channel.send(embed=embed)
 
+        elif message.content.startswith(f"{PREFIX}userinfo"):
+            user_mentions = message.mentions  # Get mentioned users
 
+            if len(user_mentions) == 0:
+                user = message.author
+            else:
+                user = user_mentions[0]  # Consider only the first mentioned user
+            is_bot = "Yes" if user.bot else "No"
+            # !!!! DOSENT WORK !!!!
+            # nitro_subscription_type = "Nitro Basic" if user.premium_type == discord.PremiumType.nitro_basic else ("Nitro" if user.premium_type == discord.PremiumType.nitro else "None")
+            # has_2fa = "Yes" if user.mfa_enabled else "No"
+
+            embed = discord.Embed(
+                title="User Information",
+                description=f"""
+Is Bot?: {is_bot}
+User Mention: <@{user.id}>
+User Name: {user.name}#{user.discriminator}
+User ID: {user.id}
+Display Name: {user.display_name}
+        """,
+                color=discord.Color(int("AF27E4", 16)),
+            )
+            embed.set_footer(text=footer)
+            embed.set_thumbnail(url=user.avatar)
+
+            await message.channel.send(embed=embed)
 # Run the bot with the provided token
 client.run(TOKEN)
