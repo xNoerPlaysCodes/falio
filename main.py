@@ -27,7 +27,7 @@ else:
     meme_enabled = "true"
 ########################
 ##################### VARIABLES
-version = "PR-4"
+version = "PR-5"
 blank = ""
 
 helpMenu = f"""
