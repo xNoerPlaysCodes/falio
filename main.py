@@ -46,7 +46,7 @@ helpMenu = f"""
 ```Fun```
 `{PREFIX}say <msg>` - Says that message!
 [ OWNER-ONLY COMMAND ]\* `{PREFIX}osay <msg>` Says that message without who said it.
-[ OWNER-ONLY COMMAND]\* `{PREFIX}run <bash command>` - Runs bash command on the PC or hosting platform that is hosting it. Only works on Linux and less than macOS catalina
+[ OWNER-ONLY COMMAND]\* `{PREFIX}run <bash command>` - Runs bash command on the PC or hosting platform that is hosting it. Only works on Linux and less than macOS catalina.
 
 \*Owner of this bot is {owner}
             """
@@ -313,7 +313,13 @@ Display Name: {user.display_name}
                         command_output = None
 
                     if command_output is not None:
-                        await message.channel.send(f"Command was `{bash_command}`\nCommand output is:\n\n```\n{command_output}\n```")
+                        embed = discord.Embed(
+                            title=f"Command was `{bash_command}`",
+                            description=f"```\n{command_output}\n```",
+                        color=discord.Color(int("AF27E4", 16))
+                        )
+                        embed.set_footer(text=f"User was {message.author.name} | {footer}")
+                        await message.channel.send(embed=embed)
                         await message.delete()
                     else:
                         return
