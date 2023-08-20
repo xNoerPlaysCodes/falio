@@ -13,7 +13,7 @@
 # main.py
 
 # Importing Packages
-import discord, sys, requests, random, os, json, asyncio
+import discord, sys, requests, random, os, json, asyncio, subprocess
 # Importing variables from var.py
 from var import tokenBot as TOKEN
 from var import footer_text as footer
@@ -46,6 +46,7 @@ helpMenu = f"""
 ```Fun```
 `{PREFIX}say <msg>` - Says that message!
 [ OWNER-ONLY COMMAND ]\* `{PREFIX}osay <msg>` Says that message without who said it.
+[ OWNER-ONLY COMMAND]\* `{PREFIX}run <bash command>` - Runs bash command on the PC or hosting platform that is hosting it. Only works on Linux and less than macOS catalina
 
 \*Owner of this bot is {owner}
             """
@@ -90,7 +91,7 @@ def isBot(user):
 
 
 #########################
-tag = "random funny"
+tag = "random funny" # This gets reset to this value every time bot is restarted
 
 # Create a Discord client (bot)
 intents = discord.Intents.default()
@@ -298,5 +299,26 @@ Display Name: {user.display_name}
             embed.set_thumbnail(url=user.avatar)
 
             await message.channel.send(embed=embed)
+
+        elif message.content.startswith(f"{PREFIX}run"):
+            if message.author.name == owner:
+                bash_command = message.content[len(f"{PREFIX}run"):]
+                if bash_command != "":
+                    try:
+                        command_output = subprocess.check_output(bash_command, shell=True, text=True)
+                        # For Python 3.5 and earlier, use: command_output = subprocess.check_output(bash_command, shell=True)
+                    except subprocess.CalledProcessError as e:
+                        await message.channel.send(f"`{bash_command}` is not a valid bash command!")
+                        await message.delete()
+                        command_output = None
+
+                    if command_output is not None:
+                        await message.channel.send(f"Command was `{bash_command}`\nCommand output is:\n\n```\n{command_output}\n```")
+                        await message.delete()
+                    else:
+                        return
+                elif bash_command == "":
+                    await message.channel.send("Provide a valid bash command to run!")
+                    await message.delete()
 # Run the bot with the provided token
 client.run(TOKEN)
