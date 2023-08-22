@@ -27,14 +27,14 @@ else:
     meme_enabled = "true"
 ########################
 ##################### VARIABLES
-version = "PR-5"
+version = "Beta 1"
 blank = ""
 
 helpMenu = f"""
 ```Main```
 `{PREFIX}ping` - Returns Client Latency.
 `{PREFIX}help` - This!
-`{PREFIX}random` - Returns a random number 100-1000
+`{PREFIX}random` <first num> <second num> - Returns a random number with two arguments that you gave.
 ```Giphy Integration```
 `{PREFIX}meme` - Returns a gif from giphy (Is meme enabled -> {meme_enabled})
 `{PREFIX}settag` <tag> - Sets tag to the message you put in <tag>
@@ -47,6 +47,10 @@ helpMenu = f"""
 `{PREFIX}say <msg>` - Says that message!
 [ OWNER-ONLY COMMAND ]\* `{PREFIX}osay <msg>` Says that message without who said it.
 [ OWNER-ONLY COMMAND]\* `{PREFIX}run <bash command>` - Runs bash command on the PC or hosting platform that is hosting it. Only works on Linux and less than macOS catalina.
+
+```Moderation```
+`{PREFIX}kick @user` - Kicks that user.
+`{PREFIX}purge <number of messages to purge>` - Mass-deletes messages.
 
 \*Owner of this bot is {owner}
             """
@@ -89,7 +93,8 @@ def stopBot(message):
 def isBot(user):
     return user.bot
 
-
+def isStr(value):
+    return isinstance(value, str)
 #########################
 tag = "random funny" # This gets reset to this value every time bot is restarted
 
@@ -173,15 +178,26 @@ async def on_message(message):
             await message.channel.send(f"Hello there, I'm {client.user}!")
         elif message.content == f"{PREFIX}ping":
             await message.channel.send(f"Pong! {round(client.latency * 1000)}ms")
-        elif message.content == f"{PREFIX}random":
-            embed = discord.Embed(
-                title="Random Number",
-                description=f"Your random number is..... {round(random.random() * 1000)}",
-            color=discord.Color(int("AF27E4", 16)),
-        )
-            embed.set_footer(text=footer),
-            await message.channel.send(embed=embed)
-
+        elif message.content.startswith(f"{PREFIX}random"):
+            args = message.content.split()
+            if len(args) == 3:
+                if args[1].isdigit() and args[2].isdigit():
+                    first = int(args[1])
+                    second = int(args[2])
+    #
+                    embed = discord.Embed(
+                        title="Random Number",
+                        description=f"Your random number is..... {random.randint(first, second)}",
+                    color=discord.Color(int("AF27E4", 16)),
+                )
+                    embed.set_footer(text=footer),
+                    await message.channel.send(embed=embed)
+                else:
+                    first = str(args[1])
+                    second = str(args[2])
+                    await message.channel.send(f"{first} or {second} was not an integer")
+            else:
+                await message.channel.send(f"Usage: {PREFIX}random <first num> <second num>")
         elif message.content == f"{PREFIX}ticket-add":
             author_name = message.author.name
             user_data = loadHasTicket()
@@ -215,22 +231,22 @@ async def on_message(message):
                 await message.channel.send("Ticket channel not found.")
             else:
                 await message.channel.send("You don't have a ticket to remove.")
-        elif message.content.startswith(f"{PREFIX}say "):
-            sayMsg = message.content[len(f"{PREFIX}say "):]
+        elif message.content.startswith(f"{PREFIX}say"):
+            sayMsg = message.content[len(f"{PREFIX}say"):]
             if sayMsg == blank:
                 await message.channel.send(f"You did not add anything after {PREFIX}say")
                 await message.delete()
             else:
                 embed = discord.Embed(
-                    title=f"{message.author.name} said....",
+                    title=f"{message.author.name} said...",
                     description=sayMsg,
                 color=discord.Color(int("AF27E4", 16)),
                 )
                 await message.channel.send(embed=embed)
                 await message.delete()
-        elif message.content.startswith(f"{PREFIX}osay "):
+        elif message.content.startswith(f"{PREFIX}osay"):
             if message.author.name == f"{owner}":
-                sayMsg = message.content[len(f"{PREFIX}osay "):]
+                sayMsg = message.content[len(f"{PREFIX}osay"):]
                 await message.channel.send(sayMsg)
                 await message.delete()
             else:
@@ -326,5 +342,63 @@ Display Name: {user.display_name}
                 elif bash_command == "":
                     await message.channel.send("Provide a valid bash command to run!")
                     await message.delete()
+
+        elif message.content.startswith(f"{PREFIX}purge"):
+            amount = message.content[len(f"{PREFIX}purge"):]
+            if amount != "":
+                if int(amount) < int(-1):
+                    await message.channel.send("Provide a valid number of messages to delete")
+                    return
+                elif int(amount) > 500:
+                    await message.channel.send(f"{amount} is greater than the limit of 500!")
+                else:
+                    if message.author.guild_permissions.manage_messages:
+                        amount = int(amount)
+                        await message.channel.purge(limit=amount + 1)
+                        await message.channel.send(f"Purged {amount} messages", delete_after=2)
+                    else:
+                        await message.channel.send("You do not have enough permissions!")
+                        return
+            else:
+                await message.channel.send("Please give how many messages to purge!")
+
+##### PLACE HOLDER COMMAND FOR FUTURE USE #####
+
+        # elif message.content.startswith(f"{PREFIX}wait"):
+        #     args = message.content.split()
+        #     if len(args) != 2:
+        #         await message.channel.send(f"Usage: {PREFIX}wait <time in seconds (no 's' required)>")
+        #         return
+        #
+        #     try:
+        #         wait_time = int(args[1])
+        #         edit_msg = await message.channel.send(f"Waiting {wait_time} seconds...")
+        #         await asyncio.sleep(wait_time)
+        #         await edit_msg.edit(content=f"It has been {wait_time} seconds.")
+        #     except ValueError:
+        #         await message.channel.send(f"Usage: {PREFIX}wait <time in seconds (no 's' required)>\n'{args[1]}' is not a valid integer for 'seconds'")
+        elif message.content.startswith(f"{PREFIX}kick"):
+            if message.author.guild_permissions.manage_messages:
+                command_parts = message.content.split()
+                if len(command_parts) < 2:
+                    await message.channel.send(f"Usage: {PREFIX}kick <user_mention>")
+                    return
+
+                user_id = command_parts[1].strip('<@!>')
+                try:
+                    member = await message.guild.fetch_member(int(user_id))
+                    if member:
+                        try:
+                            await member.kick()
+                            await message.channel.send(f"<@{user_id}> ({member.display_name}) has been kicked from the server.")
+                        except discord.Forbidden:
+                            await message.channel.send("I don't have permission to kick members.")
+                    else:
+                        await message.channel.send("User not found.")
+                except discord.NotFound:
+                    await message.channel.send("User not found.")
+            else:
+                await message.channel.send("You don't have permission to kick members as you need **manage messages.**")
+
 # Run the bot with the provided token
 client.run(TOKEN)
