@@ -18,7 +18,7 @@ import discord, sys, requests, random, os, json, asyncio, subprocess
 from var import tokenBot as TOKEN
 from var import footer_text as footer
 from var import PREFIX, owner, api_key, PlayingGame
-## banned users importing
+# Importing the list of bot-banned(blacklisted) users.
 from banned_users import users_banned
 ################# CHECKS
 if api_key == "API_KEY_HERE":
