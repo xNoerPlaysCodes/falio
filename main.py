@@ -13,12 +13,12 @@
 # main.py
 
 # Importing Packages
-import discord, sys, requests, random, os, json, asyncio, subprocess
+import discord, sys, requests, random, os, json, asyncio, subprocess, datetime
 # Importing variables from var.py
 from var import tokenBot as TOKEN
 from var import footer_text as footer
 from var import PREFIX, owner, api_key, PlayingGame
-# Importing the list of bot-banned(blacklisted) users.
+## banned users importing
 from banned_users import users_banned
 ################# CHECKS
 if api_key == "API_KEY_HERE":
@@ -26,8 +26,12 @@ if api_key == "API_KEY_HERE":
 else:
     meme_enabled = "true"
 ########################
+#############
+#uptime
+start_time = datetime.datetime.now()
+#############
 ##################### VARIABLES
-version = "Beta 1"
+version = "Beta 1.2"
 blank = ""
 
 helpMenu = f"""
@@ -43,6 +47,7 @@ helpMenu = f"""
 `{PREFIX}ticket-rm` - Removes your ticket if you have one
 `{PREFIX}userinfo @user` - Returns user information of user, no ping of user will return userinfo about message author.
 `{PREFIX}serverinfo` - Returns guild information.
+`{PREFIX}uptime` - Returns since when the bot is up.
 ```Fun```
 `{PREFIX}say <msg>` - Says that message!
 [ OWNER-ONLY COMMAND ]\* `{PREFIX}osay <msg>` Says that message without who said it.
@@ -51,8 +56,10 @@ helpMenu = f"""
 ```Moderation```
 `{PREFIX}kick @user` - Kicks that user.
 `{PREFIX}purge <number of messages to purge>` - Mass-deletes messages.
+`{PREFIX}log_start <channel id>` - Starts the logging in specified channel id.
+`{PREFIX}log_stop` - Stops logging if enabled.
 
-\*Owner of this bot is {owner}
+\*Owner of this **BOT** is {owner}
             """
 aboutCommandMenu = f"""
 Hi, I'm MBGTK! I am an open-source discord bot designed to help you reduce the bots in your server.
@@ -131,7 +138,74 @@ async def on_ready():
     else:
         print(f"Successful login as {client.user} with prefix {PREFIX}\nand Giphy API KEY {api_key}")
     await client.change_presence(activity=discord.Game(name=PlayingGame))
+############################################# LOGGING MESSAGES
+@client.event
+async def on_message_delete(message):
+    if message.author == client.user:
+        return
 
+    try:
+        with open("log_channel.json", "r") as f:
+            server_data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        server_data = []
+
+    server_id = str(message.guild.id)
+    server_entry = next((data for data in server_data if data['server_id'] == server_id), None)
+
+    if server_entry and server_entry["log_enabled"]:
+        log_channel_id = server_entry.get("log_channel")
+        if log_channel_id:
+            log_channel = message.guild.get_channel(log_channel_id)
+            if log_channel:
+                time_now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                embed = discord.Embed(
+                    title=f"{message.author.name}'s message was deleted",
+                    description=message.content,
+                    color=discord.Color(int("FFFFFF", 16)),
+                )
+                embed.set_footer(text=f"Deleted at {time_now}")
+                await log_channel.send(embed=embed)
+
+### EDITED MSGS
+
+@client.event
+async def on_message_edit(before, after):
+    if before.author == client.user:
+        return
+    if isBot(before.author):
+        return
+
+    try:
+        with open("log_channel.json", "r") as f:
+            server_data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        server_data = []
+
+    server_id = str(before.guild.id)
+    server_entry = next((data for data in server_data if data['server_id'] == server_id), None)
+
+    if server_entry and server_entry["log_enabled"]:
+        log_channel_id = server_entry.get("log_channel")
+        if log_channel_id:
+            log_channel = before.guild.get_channel(log_channel_id)
+            if log_channel:
+                time_now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                embed = discord.Embed(
+                    title=f"{before.author.name} edited",
+                    description=f"```Original Message:```\n{before.content}\n```New Message:```\n{after.content}",
+                    color=discord.Color(int("FFFFFF", 16)),
+                )
+                embed.set_footer(text=f"Edited at {time_now}")
+                await log_channel.send(embed=embed)
+##############################################################
+# Load the list of server data from log_channel.json if the file exists
+try:
+    with open("log_channel.json", "r") as f:
+        server_data = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    server_data = []
+#########
 # Event: When a message is received in a server the bot is a part of
 @client.event
 async def on_message(message):
@@ -153,9 +227,12 @@ async def on_message(message):
                 await message.channel.send(f"Sorry, you're not the owner of the bot, if you think this is a mistake edit the var.py file and replace the blank with username. You are {message.author} and from var.py is {owner}")
         global tag  # Declare the global tag variable to change it if needed
 
-        if message.content.startswith(f"{PREFIX}settag "):
-            tag = message.content[len(f"{PREFIX}settag "):]
-            await message.channel.send(f"Tag set to `{tag}`.")
+        if message.content.startswith(f"{PREFIX}settag"):
+            if meme_enabled == "true":
+                tag = message.content[len(f"{PREFIX}settag"):]
+                await message.channel.send(f"Tag set to `{tag}`.")
+            elif meme_enabled == "false":
+                await message.channel.send("Meme functionality is disabled in var.py, please change that.")
         elif message.content == f"{PREFIX}meme":
             if meme_enabled == "true":
                 await message.channel.send(f"Tag is {tag}")
@@ -165,7 +242,7 @@ async def on_message(message):
                 else:
                     await message.channel.send("Oops, something went wrong while fetching the GIF.")
             elif meme_enabled == "false":
-                await message.channel.send("Meme functionality is not configured in var.py, please change that.")
+                await message.channel.send("Meme functionality is disabled in var.py, please change that.")
         elif message.content == f"{PREFIX}help":
             embed = discord.Embed(
                 title="Help Menu",
@@ -177,7 +254,9 @@ async def on_message(message):
         elif message.content == f"{PREFIX}hello":
             await message.channel.send(f"Hello there, I'm {client.user}!")
         elif message.content == f"{PREFIX}ping":
-            await message.channel.send(f"Pong! {round(client.latency * 1000)}ms")
+            og_msg = await message.channel.send(f"Calculating....")
+            await asyncio.sleep(1)
+            await og_msg.edit(content=f"Pong! {round(client.latency * 1000)}ms")
         elif message.content.startswith(f"{PREFIX}random"):
             args = message.content.split()
             if len(args) == 3:
@@ -399,6 +478,67 @@ Display Name: {user.display_name}
                     await message.channel.send("User not found.")
             else:
                 await message.channel.send("You don't have permission to kick members as you need **manage messages.**")
+
+        elif message.content == f"{PREFIX}uptime":
+            current_time = datetime.datetime.now()
+            uptime = current_time - start_time
+
+            days, seconds = uptime.days, uptime.seconds
+            hours = seconds // 3600
+            minutes = (seconds % 3600) // 60
+            seconds = seconds % 60
+
+            uptime_str = f"{days} days, {hours} hours, {minutes} minutes, {seconds} seconds"
+
+            await message.channel.send(f"Uptime: {uptime_str}")
+
+        if message.content == f"{PREFIX}log_start":
+            if message.author.guild_permissions.manage_messages:
+                try:
+                    with open("log_channel.json", "r") as f:
+                        server_data = json.load(f)
+                except (FileNotFoundError, json.JSONDecodeError):
+                    server_data = []
+
+                server_id = str(message.guild.id)
+                server_entry = next((data for data in server_data if data['server_id'] == server_id), None)
+
+                if not server_entry:
+                    server_data.append({"server_id": server_id, "log_enabled": True, "log_channel": int(message.channel.id)})
+
+                    with open("log_channel.json", "w") as f:
+                        json.dump(server_data, f, indent=4)
+
+                    await message.channel.send("Logging enabled for this server and channel.")
+                else:
+                    await message.channel.send("Logging is already enabled for this server and channel.")
+
+        elif message.content == f"{PREFIX}log_stop":
+            if message.author.guild_permissions.manage_messages:
+                try:
+                    with open("log_channel.json", "r") as f:
+                        server_data = json.load(f)
+                except (FileNotFoundError, json.JSONDecodeError):
+                    server_data = []
+
+                server_id = str(message.guild.id)
+                server_entry = next((data for data in server_data if data['server_id'] == server_id), None)
+
+                if server_entry:
+                    server_entry["log_enabled"] = False
+
+                    with open("log_channel.json", "w") as f:
+                        json.dump(server_data, f, indent=4)
+
+                    await message.channel.send("Logging disabled for this server.")
+                else:
+                    await message.channel.send(f"Server logging was not enabled using {PREFIX}log_start.")
+            # Load the list of server data from log_channel.json if the file exists
+            try:
+                with open("log_channel.json", "r") as f:
+                    server_data = json.load(f)
+            except (FileNotFoundError, json.JSONDecodeError):
+                server_data = []
 
 # Run the bot with the provided token
 client.run(TOKEN)
