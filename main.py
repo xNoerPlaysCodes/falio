@@ -8,8 +8,8 @@
 #       i              i    B         B     G           G               T               K      K
 #       i              i    BBBBBBBBBBB     GGGGGGGGGGGGG               T               K       K
 #                                                                                                   .py
-# Despite it's stupid name, this bot is the best bot you have ever seen. Moderation, Fun, Utilities... We've got it all
-# Invite me today at https://bit.ly/mbgtk (OR PUT GITHUB PAGE)
+# Despite it's stupid name, this is the best bot you'll ever use. Moderation, Utilities.. We've got it all.
+# Self-host your own at https://github.com/xNoerPlaysCodes/mbgtk-python
 # main.py
 
 # Importing Packages
@@ -54,6 +54,7 @@ helpMenu = f"""
 [ OWNER-ONLY COMMAND]\* `{PREFIX}run <bash command>` - Runs bash command on the PC or hosting platform that is hosting it. Only works on Linux and less than macOS catalina.
 
 ```Moderation```
+`{PREFIX}slowmode <seconds>` or `{PREFIX}sm <seconds>` - Sets the slowmode for that current channel.
 `{PREFIX}kick @user` - Kicks that user.
 `{PREFIX}purge <number of messages to purge>` - Mass-deletes messages.
 `{PREFIX}log_start <channel id>` - Starts the logging in specified channel id.
@@ -80,6 +81,27 @@ Global Bot Prefix: `{PREFIX}`
 Based on MBGTK.py version {version}
 Hosting Python Version: ||{sys.version}||
 """
+if meme_enabled == 'true':
+    settings = f"""
+    Prefix - {PREFIX}
+    Intents used - discord.Intents.default()
+    Footer Text - {footer}
+    Owner - {owner}
+    Playing Game - {PlayingGame}
+
+    / \* Confidential information such as your discord bot token and your giphy API key are not shown for security purposes.
+    """
+elif meme_enabled == 'false':
+    settings = f"""
+    Prefix - {PREFIX}
+    Intents used - discord.Intents.default()
+    Footer Text - {footer}
+    Owner - {owner}
+    Playing Game - {PlayingGame}
+    Giphy API Key - API_KEY_NOT_GIVEN
+
+    / \* Confidential information such as your discord bot token are not shown for security purposes.
+    """
 ##########################
 # DEFINTIONS OF CUST_FUNC
 def loadHasTicket():
@@ -134,13 +156,14 @@ async def fetch_gif_with_tag(tag):                                              
 @client.event
 async def on_ready():
     if api_key == "API_KEY_HERE":
-        print(f"Successful login as {client.user} with prefix {PREFIX} and no Giphy API KEY.")
+        print(f"🚀 Successful login as {client.user} with prefix {PREFIX} and no Giphy API KEY.")
     else:
-        print(f"Successful login as {client.user} with prefix {PREFIX}\nand Giphy API KEY {api_key}")
+        print(f"🚀 Successful login as {client.user} with prefix {PREFIX}\nand Giphy API KEY {api_key}")
     await client.change_presence(activity=discord.Game(name=PlayingGame))
 ############################################# LOGGING MESSAGES
 @client.event
 async def on_message_delete(message):
+    # print("Message deleted")
     if message.author == client.user:
         return
 
@@ -171,6 +194,7 @@ async def on_message_delete(message):
 
 @client.event
 async def on_message_edit(before, after):
+    # print("Message edited")
     if before.author == client.user:
         return
     if isBot(before.author):
@@ -216,7 +240,7 @@ async def on_message(message):
     if isBot(message.author):
         return
     if message.author.name in users_banned:
-        await message.channel.send("You are banned from using this bot.")
+        return
     else:
         if message.content == f"{PREFIX}stopthebotrightnow":
             if message.author.name == owner:
@@ -250,7 +274,12 @@ async def on_message(message):
                 color=discord.Color(int("AF27E4", 16)),
             )
             embed.set_footer(text=footer),
-            await message.channel.send(embed=embed)
+            try:
+                await message.author.send(embed=embed)
+                await message.channel.send("Check your DMs!")
+            except discord.errors.Forbidden:
+                await message.channel.send(embed=embed)
+
         elif message.content == f"{PREFIX}hello":
             await message.channel.send(f"Hello there, I'm {client.user}!")
         elif message.content == f"{PREFIX}ping":
@@ -321,17 +350,19 @@ async def on_message(message):
                     description=sayMsg,
                 color=discord.Color(int("AF27E4", 16)),
                 )
-                await message.channel.send(embed=embed)
+                async with message.channel.typing():
+                    await asyncio.sleep(0.5)  # Simulate typing for 2 seconds
+                    await message.channel.send(embed=embed)
                 await message.delete()
         elif message.content.startswith(f"{PREFIX}osay"):
             if message.author.name == f"{owner}":
                 sayMsg = message.content[len(f"{PREFIX}osay"):]
-                await message.channel.send(sayMsg)
+                async with message.channel.typing():
+                    await asyncio.sleep(0.5)  # Simulate typing for 2 seconds
+                    await message.channel.send(sayMsg)
                 await message.delete()
             else:
                 return
-        elif message.content.lower().startswith("mbgtk su"):
-            await message.channel.send("Nope.")
         elif message.content == f"{PREFIX}about":
             embed = discord.Embed(
                 description=aboutCommandMenu,
@@ -539,6 +570,58 @@ Display Name: {user.display_name}
                     server_data = json.load(f)
             except (FileNotFoundError, json.JSONDecodeError):
                 server_data = []
+        elif message.content == f'{PREFIX}settings':
+            if message.author.name == owner:
+                embed = discord.Embed(
+                    title=f"Read-only settings for {client.user}",
+                    description=settings,
+                color=discord.Color(int('AF27E4', 16))
+                )
+                embed.set_footer(text=footer)
+                embed.set_thumbnail(url='https://i.imgur.com/7ggtoIk.png')
+                await message.channel.send(embed=embed)
+            else:
+                await message.channel.send(f'Only the owner ({owner}) can use this command.')
+
+        elif message.content.startswith(f'{PREFIX}slowmode'):
+            args = message.content.split()
+            if len(args) != 2:
+                await message.channel.send("Usage: !slowmode <duration>")
+                return
+            if message.author.guild_permissions.manage_messages:
+                try:
+                    duration = int(args[1])
+                    if duration < 0 or duration > 21600:  # Set reasonable limits for slow mode (0 to 6 hours)
+                        await message.channel.send("Please provide a valid duration between 0 and 21600 seconds.")
+                        return
+
+                    await message.channel.edit(slowmode_delay=duration)
+                    await message.channel.send(f"Slow mode set to {duration} seconds in this channel.")
+                except ValueError:
+                    await message.channel.send("Please provide a valid duration, no need to put `s`, just the number is fine.")
+            else:
+                await message.channel.send("You do not have enough permissions!")
+                return
+
+        elif message.content.startswith(f'{PREFIX}sm'):
+            args = message.content.split()
+            if len(args) != 2:
+                await message.channel.send("Usage: !sm <duration>")
+                return
+            if message.author.guild_permissions.manage_messages:
+                try:
+                    duration = int(args[1])
+                    if duration < 0 or duration > 21600:  # Set reasonable limits for slow mode (0 to 6 hours)
+                        await message.channel.send("Please provide a valid duration between 0 and 21600 seconds.")
+                        return
+
+                    await message.channel.edit(slowmode_delay=duration)
+                    await message.channel.send(f"Slowmode set to {duration} seconds in this channel.")
+                except ValueError:
+                    await message.channel.send("Please provide a valid duration, no need to put `s`, just the number is fine.")
+            else:
+                await message.channel.send("You do not have enough permissions!")
+                return
 
 # Run the bot with the provided token
 client.run(TOKEN)
