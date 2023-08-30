@@ -6,4 +6,4 @@ Download all the files.
 Then, start main.py using your preferred operating system syntax (ie Linux & Mac is `python3 ./main.py`, Windows is `python .\main.py` in powershell window)
 
 # Documentation
-[Look at the documentation.](https://xnoerplayscodes.github.io/docs/docs.html)
+[View the documentation.](https://xnoerplayscodes.github.io/docs/docs.html)
