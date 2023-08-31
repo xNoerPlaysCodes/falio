@@ -35,30 +35,31 @@ version = "Beta 1.2"
 blank = ""
 
 helpMenu = f"""
-```Main```
+# ```Main```
 `{PREFIX}ping` - Returns Client Latency.
 `{PREFIX}help` - This!
 `{PREFIX}random` <first num> <second num> - Returns a random number with two arguments that you gave.
-```Giphy Integration```
+# ```Giphy Integration```
 `{PREFIX}meme` - Returns a gif from giphy (Is meme enabled -> {meme_enabled})
 `{PREFIX}settag` <tag> - Sets tag to the message you put in <tag>
-```Utility```
+# ```Utility```
 `{PREFIX}ticket-add` - Creates a ticket
 `{PREFIX}ticket-rm` - Removes your ticket if you have one
 `{PREFIX}userinfo @user` - Returns user information of user, no ping of user will return userinfo about message author.
 `{PREFIX}serverinfo` - Returns guild information.
 `{PREFIX}uptime` - Returns since when the bot is up.
-```Fun```
+# ```Fun```
 `{PREFIX}say <msg>` - Says that message!
 [ OWNER-ONLY COMMAND ]\* `{PREFIX}osay <msg>` Says that message without who said it.
 [ OWNER-ONLY COMMAND]\* `{PREFIX}run <bash command>` - Runs bash command on the PC or hosting platform that is hosting it. Only works on Linux and less than macOS catalina.
 
-```Moderation```
-`{PREFIX}slowmode <seconds>` or `{PREFIX}sm <seconds>` - Sets the slowmode for that current channel.
+# ```Moderation```
 `{PREFIX}kick @user` - Kicks that user.
+`{PREFIX}ban @user` - Bans that user.
+`{PREFIX}slowmode <seconds>` or `{PREFIX}sm <seconds>` - Sets the slowmode for that current channel.
 `{PREFIX}purge <number of messages to purge>` - Mass-deletes messages.
-`{PREFIX}log_start <channel id>` - Starts the logging in specified channel id.
-`{PREFIX}log_stop` - Stops logging if enabled.
+`{PREFIX}log_start <channel id>` - Starts the message logging in specified channel id.
+`{PREFIX}log_stop` - Stops message logging if enabled.
 
 \*Owner of this **BOT** is {owner}
             """
@@ -67,12 +68,13 @@ Hi, I'm MBGTK! I am an open-source discord bot designed to help you reduce the b
 
 [Github Page](https://github.com/xNoerPlaysCodes/mbgtk-python/)
 [Official Website](https://xnoerplayscodes.github.io/index.html)
+[Documentation](https://xnoerplayscodes.github.io/docs/docs.html)
 
 Credits:
-xNoerPlays (noerlol#0) - Lead Developer
-Techbox (teckbox#0) - Ideas and the sole idea for this bot was his.
-Xavier (frlnamra#0) - Emotional Support XD / Tester of Bot
-sam/sammy (@.zqkarl#0) - Logo maker 😍😍😍😍😍😍😍
+xNoerPlays (<@1044817642143371364>) - Developer
+Techbox (<@906810276081442816>) - Ideas and the sole idea for this bot was his.
+Xavier (<@1087527750539165747>) - Emotional Support XD / Tester of Bot
+sam/sammy (<@1051430553469071380>) - Logo maker 😍😍😍😍😍😍😍
 
 ❤️❤️❤️❤️❤️❤️❤️ This took a long time, so consider DMing me (or any of the members above) to give them a happy thankyou <3
 
@@ -83,27 +85,28 @@ Hosting Python Version: ||{sys.version}||
 """
 if meme_enabled == 'true':
     settings = f"""
-    Prefix - {PREFIX}
-    Intents used - discord.Intents.default()
-    Footer Text - {footer}
-    Owner - {owner}
-    Playing Game - {PlayingGame}
+Prefix - {PREFIX}
+Intents used - discord.Intents.default()
+Has intents.message_content? - True
+Footer Text - {footer}
+Owner - {owner}
+Playing Game - {PlayingGame}
 
-    / \* Confidential information such as your discord bot token and your giphy API key are not shown for security purposes.
+/\* Confidential information such as your discord bot token and your Giphy API key are not shown for security purposes.
     """
 elif meme_enabled == 'false':
     settings = f"""
-    Prefix - {PREFIX}
-    Intents used - discord.Intents.default()
-    Footer Text - {footer}
-    Owner - {owner}
-    Playing Game - {PlayingGame}
-    Giphy API Key - API_KEY_NOT_GIVEN
+Prefix - {PREFIX}
+Intents used - discord.Intents.default()
+Footer Text - {footer}
+Owner - {owner}
+Playing Game - {PlayingGame}
+Giphy API Key - API_KEY_NOT_GIVEN
 
-    / \* Confidential information such as your discord bot token are not shown for security purposes.
+/\* Confidential information such as your discord bot token are not shown for security purposes.
     """
 ##########################
-# DEFINTIONS OF CUST_FUNC
+# DEFINTIONS
 def loadHasTicket():
     filename = "user_tickets.json"
     try:
@@ -259,12 +262,17 @@ async def on_message(message):
                 await message.channel.send("Meme functionality is disabled in var.py, please change that.")
         elif message.content == f"{PREFIX}meme":
             if meme_enabled == "true":
-                await message.channel.send(f"Tag is {tag}")
                 gif_url = await fetch_gif_with_tag(tag)
                 if gif_url:
-                    await message.channel.send(gif_url)
+                    embed = discord.Embed(
+                        title=f"Tag is `{tag}`",
+                    color=discord.Color(int("AF27E4", 16))
+                    )
+                    embed.set_footer(text=f"Powered by GIPHY®")
+                    embed.set_image(url=gif_url)
+                    await message.channel.send(embed=embed)
                 else:
-                    await message.channel.send("Oops, something went wrong while fetching the GIF.")
+                    await message.channel.send("Oops, something went wrong while fetching the GIF.", delete_after=5)
             elif meme_enabled == "false":
                 await message.channel.send("Meme functionality is disabled in var.py, please change that.")
         elif message.content == f"{PREFIX}help":
@@ -280,8 +288,6 @@ async def on_message(message):
             except discord.errors.Forbidden:
                 await message.channel.send(embed=embed)
 
-        elif message.content == f"{PREFIX}hello":
-            await message.channel.send(f"Hello there, I'm {client.user}!")
         elif message.content == f"{PREFIX}ping":
             og_msg = await message.channel.send(f"Calculating....")
             await asyncio.sleep(1)
@@ -463,9 +469,12 @@ Display Name: {user.display_name}
                     await message.channel.send(f"{amount} is greater than the limit of 500!")
                 else:
                     if message.author.guild_permissions.manage_messages:
-                        amount = int(amount)
-                        await message.channel.purge(limit=amount + 1)
-                        await message.channel.send(f"Purged {amount} messages", delete_after=2)
+                        try:
+                            amount = int(amount)
+                            await message.channel.purge(limit=amount + 1)
+                            await message.channel.send(f"Purged {amount} messages", delete_after=2)
+                        except discord.errors.Forbidden as e:
+                            await message.channel.send(f"Error has occurred and the command could not be executed.\n```\n{e}\n```")
                     else:
                         await message.channel.send("You do not have enough permissions!")
                         return
@@ -586,7 +595,7 @@ Display Name: {user.display_name}
         elif message.content.startswith(f'{PREFIX}slowmode'):
             args = message.content.split()
             if len(args) != 2:
-                await message.channel.send("Usage: !slowmode <duration>")
+                await message.channel.send(f"Usage: {PREFIX}slowmode <duration>")
                 return
             if message.author.guild_permissions.manage_messages:
                 try:
@@ -606,7 +615,7 @@ Display Name: {user.display_name}
         elif message.content.startswith(f'{PREFIX}sm'):
             args = message.content.split()
             if len(args) != 2:
-                await message.channel.send("Usage: !sm <duration>")
+                await message.channel.send(f"Usage: {PREFIX}sm <duration>")
                 return
             if message.author.guild_permissions.manage_messages:
                 try:
@@ -622,6 +631,29 @@ Display Name: {user.display_name}
             else:
                 await message.channel.send("You do not have enough permissions!")
                 return
+
+        elif message.content.startswith(f"{PREFIX}ban"):
+            if message.author.guild_permissions.ban_members:
+                command_parts = message.content.split()
+                if len(command_parts) < 2:
+                    await message.channel.send(f"Usage: {PREFIX}ban <user_mention>")
+                    return
+
+                user_id = command_parts[1].strip('<@!>')
+                try:
+                    member = await message.guild.fetch_member(int(user_id))
+                    if member:
+                        try:
+                            await member.ban()
+                            await message.channel.send(f"<@{user_id}> ({member.display_name}) has been banned from the server.")
+                        except discord.Forbidden:
+                            await message.channel.send("I don't have permission to ban members.")
+                    else:
+                        await message.channel.send("User not found.")
+                except discord.NotFound:
+                    await message.channel.send("User not found.")
+            else:
+                await message.channel.send("You don't have permission to ban members as you need **ban members** permission.")
 
 # Run the bot with the provided token
 client.run(TOKEN)
