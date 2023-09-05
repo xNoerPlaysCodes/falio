@@ -31,7 +31,7 @@ else:
 start_time = datetime.datetime.now()
 #############
 ##################### VARIABLES
-version = "Release 1.0"
+version = "Release 1.0.1"
 blank = ""
 
 helpMenu = f"""
