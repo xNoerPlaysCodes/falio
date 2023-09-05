@@ -31,7 +31,7 @@ else:
 start_time = datetime.datetime.now()
 #############
 ##################### VARIABLES
-version = "Beta 1.2"
+version = "Release 1.0"
 blank = ""
 
 helpMenu = f"""
@@ -64,7 +64,7 @@ helpMenu = f"""
 \*Owner of this **BOT** is {owner}
             """
 aboutCommandMenu = f"""
-Hi, I'm MBGTK! I am an open-source discord bot designed to help you reduce the bots in your server.
+Hi, I'm MBGTK! I am an open-source discord bot that does what the most popular bots do but is designed to reduce the bots in your server while not having "Fun" commands that clog up your server.
 
 [Github Page](https://github.com/xNoerPlaysCodes/mbgtk-python/)
 [Official Website](https://xnoerplayscodes.github.io/index.html)
@@ -119,8 +119,8 @@ def saveHasTicket(data):
     with open(filename, 'w') as file:
         json.dump(data, file, indent=4)
 
-def stopBot(message):
-    sys.exit(0)
+def stopBot(exit_code):
+    sys.exit(exit_code)
 
 def isBot(user):
     return user.bot
@@ -135,26 +135,25 @@ intents = discord.Intents.default()
 intents.message_content = True  # Allows the bot to receive message events
 client = discord.Client(intents=intents)
 
-#############################################################################################################
-# GIF FETCH THINGY                                                                                          #
-async def fetch_gif_with_tag(tag):                                                                          #
-    url = f'https://api.giphy.com/v1/gifs/random?api_key={api_key}&tag={tag}'                               #
-    try:                                                                                                    #
-        response = requests.get(url)                                                                        #
-        response.raise_for_status()  # Raise an exception for HTTP errors                                   #
-        data = response.json()                                                                              #
-        if 'data' in data and 'images' in data['data'] and 'original' in data['data']['images']:            #
-            gif_url = data['data']['images']['original']['url']                                             #
-            return gif_url                                                                                  #
-        else:                                                                                               #
-            print("Error parsing API response: 'image_original_url' key not found.")                        #
-            return None                                                                                     #
-    except requests.exceptions.RequestException as e:                                                       #
-        print("Error while fetching GIF from Giphy API:", e)                                                #
-        return None                                                                                         #
-    except KeyError as e:                                                                                   #
-        print("Error parsing API response:", e)                                                             #
-        return None##########################################################################################
+# GIF FETCH THINGY
+async def fetch_gif_with_tag(tag):
+    url = f'https://api.giphy.com/v1/gifs/random?api_key={api_key}&tag={tag}'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        data = response.json()
+        if 'data' in data and 'images' in data['data'] and 'original' in data['data']['images']:
+            gif_url = data['data']['images']['original']['url']
+            return gif_url
+        else:
+            print("Error parsing API response: 'image_original_url' key not found.")
+            return None
+    except requests.exceptions.RequestException as e:
+        print("Error while fetching GIF from Giphy API:", e)
+        return None
+    except KeyError as e:
+        print("Error parsing API response:", e)
+        return None
 # Event: When the bot is ready and connected to Discord
 @client.event
 async def on_ready():
@@ -245,10 +244,11 @@ async def on_message(message):
     if message.author.name in users_banned:
         return
     else:
-        if message.content == f"{PREFIX}stopthebotrightnow":
+        if message.content == f"{PREFIX}halt":
             if message.author.name == owner:
-                stopBot(message)
-                print(f"{message.author} directed the stopping of the bot.")
+                print(f"{message.author} has stopped the bot.")
+                time.sleep(1)
+                stopBot(0)
             else:
                 print("A user tried to stop the bot while not being owner.")
                 await message.channel.send(f"Sorry, you're not the owner of the bot, if you think this is a mistake edit the var.py file and replace the blank with username. You are {message.author} and from var.py is {owner}")
@@ -654,6 +654,34 @@ Display Name: {user.display_name}
                     await message.channel.send("User not found.")
             else:
                 await message.channel.send("You don't have permission to ban members as you need **ban members** permission.")
+
+        elif message.content.startswith(f"{PREFIX}eval"):
+            evalCMD = message.content[len(f"{PREFIX}eval"):]
+            if evalCMD == '':
+                await message.channel.send("Input must not be **None**")
+                return
+            else:
+                if message.author.name == owner:
+                    try:
+                        result = eval(evalCMD)
+                        embed = discord.Embed(
+                            title=f"Code output:",
+                            description=f"```\n{result}\n```",
+                        color=discord.Color(int("AF27E4", 16))
+                        )
+                        embed.set_footer(text=footer)
+                        await message.channel.send(embed=embed)
+                    except SyntaxError as e:
+                        await message.channel.send(f"!! ERROR_OCCURRED !!\nTYPE=SYNTAXERROR\n{e}")
+                        return
+                    except ValueError as ve:
+                        await message.channel.send(f"!! ERROR_OCCURRED !!\nTYPE=VALUEERROR\n{ve}")
+                        return
+                    except Exception as x:
+                        await message.channel.send(f"!! ERROR_OCCURRED !!\nTYPE=EXCEPTION\n{x}")
+                        return
+                elif message.author.name != owner:
+                    return
 
 # Run the bot with the provided token
 client.run(TOKEN)
