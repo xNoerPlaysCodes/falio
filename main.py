@@ -32,7 +32,6 @@ start_time = datetime.datetime.now()
 #############
 ##################### VARIABLES
 version = "Release 1.0.1"
-blank = ""
 
 helpMenu = f"""
 # ```Main```
@@ -128,7 +127,7 @@ def isBot(user):
 def isStr(value):
     return isinstance(value, str)
 #########################
-tag = "random funny" # This gets reset to this value every time bot is restarted
+tag = "random funny" # The tag gets reset to this value everytime bot is restarted
 
 # Create a Discord client (bot)
 intents = discord.Intents.default()
@@ -396,7 +395,7 @@ Server Member Count - {str(guild.member_count)}
 Server Boost Count - {int(guild.premium_subscription_count)}
 Server Boost Level - {guild.premium_tier}
 Server Emojis - (Click to expose spoiler) ||{emojis}||
-Server Roles - {roles}
+Server Roles - {roles}\n(No you did not just ping everyone.)
     """,
     color=discord.Color(int("AF27E4", 16)),
         )
@@ -481,21 +480,6 @@ Display Name: {user.display_name}
             else:
                 await message.channel.send("Please give how many messages to purge!")
 
-##### PLACE HOLDER COMMAND FOR FUTURE USE #####
-
-        # elif message.content.startswith(f"{PREFIX}wait"):
-        #     args = message.content.split()
-        #     if len(args) != 2:
-        #         await message.channel.send(f"Usage: {PREFIX}wait <time in seconds (no 's' required)>")
-        #         return
-        #
-        #     try:
-        #         wait_time = int(args[1])
-        #         edit_msg = await message.channel.send(f"Waiting {wait_time} seconds...")
-        #         await asyncio.sleep(wait_time)
-        #         await edit_msg.edit(content=f"It has been {wait_time} seconds.")
-        #     except ValueError:
-        #         await message.channel.send(f"Usage: {PREFIX}wait <time in seconds (no 's' required)>\n'{args[1]}' is not a valid integer for 'seconds'")
         elif message.content.startswith(f"{PREFIX}kick"):
             if message.author.guild_permissions.manage_messages:
                 command_parts = message.content.split()
@@ -672,13 +656,13 @@ Display Name: {user.display_name}
                         embed.set_footer(text=footer)
                         await message.channel.send(embed=embed)
                     except SyntaxError as e:
-                        await message.channel.send(f"!! ERROR_OCCURRED !!\nTYPE=SYNTAXERROR\n{e}")
+                        await message.channel.send(f"Fatal error.\n```\nTYPE=SyntaxError\n{e}\n```")
                         return
                     except ValueError as ve:
-                        await message.channel.send(f"!! ERROR_OCCURRED !!\nTYPE=VALUEERROR\n{ve}")
+                        await message.channel.send(f"Fatal error.\n```\nTYPE=ValueError\n{ve}\n```")
                         return
                     except Exception as x:
-                        await message.channel.send(f"!! ERROR_OCCURRED !!\nTYPE=EXCEPTION\n{x}")
+                        await message.channel.send(f"Fatal error.\n```\nTYPE=Exception\n{x}\n```")
                         return
                 elif message.author.name != owner:
                     return
