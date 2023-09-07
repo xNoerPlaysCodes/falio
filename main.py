@@ -17,7 +17,7 @@ import discord, sys, requests, random, os, json, asyncio, subprocess, datetime
 # Importing variables from var.py
 from var import tokenBot as TOKEN
 from var import footer_text as footer
-from var import PREFIX, owner, api_key, PlayingGame
+from var import PREFIX, owner, api_key, PlayingGame, color
 ## banned users importing
 from banned_users import users_banned
 ################# CHECKS
@@ -31,7 +31,7 @@ else:
 start_time = datetime.datetime.now()
 #############
 ##################### VARIABLES
-version = "Release 1.0.1"
+version = "Release 1.0.2"
 
 helpMenu = f"""
 # ```Main```
@@ -265,7 +265,7 @@ async def on_message(message):
                 if gif_url:
                     embed = discord.Embed(
                         title=f"Tag is `{tag}`",
-                    color=discord.Color(int("AF27E4", 16))
+                    color=discord.Color(int(color, 16))
                     )
                     embed.set_footer(text=f"Powered by GIPHY®")
                     embed.set_image(url=gif_url)
@@ -278,7 +278,7 @@ async def on_message(message):
             embed = discord.Embed(
                 title="Help Menu",
                 description=helpMenu,
-                color=discord.Color(int("AF27E4", 16)),
+                color=discord.Color(int(color, 16)),
             )
             embed.set_footer(text=footer),
             try:
@@ -301,7 +301,7 @@ async def on_message(message):
                     embed = discord.Embed(
                         title="Random Number",
                         description=f"Your random number is..... {random.randint(first, second)}",
-                    color=discord.Color(int("AF27E4", 16)),
+                    color=discord.Color(int(color, 16)),
                 )
                     embed.set_footer(text=footer),
                     await message.channel.send(embed=embed)
@@ -353,7 +353,7 @@ async def on_message(message):
                 embed = discord.Embed(
                     title=f"{message.author.name} said...",
                     description=sayMsg,
-                color=discord.Color(int("AF27E4", 16)),
+                color=discord.Color(int(color, 16)),
                 )
                 async with message.channel.typing():
                     await asyncio.sleep(0.5)  # Simulate typing for 2 seconds
@@ -371,7 +371,7 @@ async def on_message(message):
         elif message.content == f"{PREFIX}about":
             embed = discord.Embed(
                 description=aboutCommandMenu,
-            color=discord.Color(int("AF27E4", 16)),
+            color=discord.Color(int(color, 16)),
             )
             embed.set_footer(text=f"Made with love in discord.py | {footer}"),
             await message.channel.send(embed=embed)
@@ -397,7 +397,7 @@ Server Boost Level - {guild.premium_tier}
 Server Emojis - (Click to expose spoiler) ||{emojis}||
 Server Roles - {roles}\n(No you did not just ping everyone.)
     """,
-    color=discord.Color(int("AF27E4", 16)),
+    color=discord.Color(int(color, 16)),
         )
             embed.set_thumbnail(url=f"{guild.icon}")
             embed.set_footer(text=footer)
@@ -424,7 +424,7 @@ User Name: {user.name}#{user.discriminator}
 User ID: {user.id}
 Display Name: {user.display_name}
         """,
-                color=discord.Color(int("AF27E4", 16)),
+                color=discord.Color(int(color, 16)),
             )
             embed.set_footer(text=footer)
             embed.set_thumbnail(url=user.avatar)
@@ -447,7 +447,7 @@ Display Name: {user.display_name}
                         embed = discord.Embed(
                             title=f"Command was `{bash_command}`",
                             description=f"```\n{command_output}\n```",
-                        color=discord.Color(int("AF27E4", 16))
+                        color=discord.Color(int(color, 16))
                         )
                         embed.set_footer(text=f"User was {message.author.name} | {footer}")
                         await message.channel.send(embed=embed)
@@ -629,7 +629,7 @@ Display Name: {user.display_name}
                     if member:
                         try:
                             await member.ban()
-                            await message.channel.send(f"<@{user_id}> ({member.display_name}) has been banned from the server.")
+                            await message.channel.send(f"<@{user_id}> ({member.display_name}) has been **banned** from the server.")
                         except discord.Forbidden:
                             await message.channel.send("I don't have permission to ban members.")
                     else:
@@ -651,7 +651,7 @@ Display Name: {user.display_name}
                         embed = discord.Embed(
                             title=f"Code output:",
                             description=f"```\n{result}\n```",
-                        color=discord.Color(int("AF27E4", 16))
+                        color=discord.Color(int(color, 16))
                         )
                         embed.set_footer(text=footer)
                         await message.channel.send(embed=embed)
