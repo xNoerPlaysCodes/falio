@@ -56,7 +56,7 @@ color = 'AF27E4'
 # The bot owner username if they have no tag at the end of name do only the name no #0000 for example not noerlol#0000 but noerlol or anything and if they have a tag do this UserName#1234 and replace with correct
 
 #           To get current prefix enter {PREFIX} in PlayingGame
-PlayingGame = f"I'm in testing mode."
+PlayingGame = f"{PREFIX}help"
 
 # added functionality of meme (Gifs using Giphy) thing using meme command (giphy)
 api_key = "API_KEY_HERE"
