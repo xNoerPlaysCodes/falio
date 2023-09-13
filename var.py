@@ -24,6 +24,7 @@ for filename in fileSystemStruct:
     file_path = os.path.join(folder_path, filename)
     if not os.path.isfile(file_path):
         print(f"File '{filename}' is missing in the folder.")
+        sys.exit(0)
 
 print("All required files are present, continuing start-up")
 time.sleep(1)
