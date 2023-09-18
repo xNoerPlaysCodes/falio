@@ -1,4 +1,4 @@
-# mbgtk-python
+# Falio
 A discord bot in python, by Noer.
 
 # How to use?
