@@ -1,15 +1,16 @@
-#       ii           iii    BBBBBBBBBBB     GGGGGGGGGGGGGG      TTTTTTTTTTTTTTTTT       K      K
-#       iii         iiii    B         B     G                           T               K    K
-#       iiiii      iiiii    B         B     G                           T               K  K
-#       iiiiiii   iiiiii    B         B     G                           T               KKK
-#       iiiiiiiiiiiiiiii    BBBBBBBBBB      G                           T               K  K
-#       i              i    B         B     GGGGGGGGGGGGG               T               K   K
-#       i              i    B         B     G           G               T               K     K
-#       i              i    B         B     G           G               T               K      K
-#       i              i    BBBBBBBBBBB     GGGGGGGGGGGGG               T               K       K
-#                                                                                                   .py
+#       iiiiiiiiiiiiiiii        ii              i                   iiiiiiiiiiiiiiiii     oooooooooooooooo
+#       i                      i  i             i                           i             o              o
+#       i                     i    i            i                           i             o              o
+#       i                    i      i           i                           i             o              o
+#       iiiiiiiii           i        i          i                           i             o              o
+#       i                  i----------i         i                           i             o              o
+#       i                 i            i        i                           i             o              o
+#       i                i              i       i                           i             o              o
+#       i               i                i      i                           i             o              o
+#       i              i                  i     i                           i             o              o
+#       i             i                    i    iiiiiiiiiiiiiiii    iiiiiiiiiiiiiiiii     oooooooooooooooo
 # Despite it's stupid name, this is the best bot you'll ever use. Moderation, Utilities.. We've got it all.
-# Self-host your own at https://github.com/xNoerPlaysCodes/mbgtk-python
+# Self-host your own at https://github.com/xNoerPlaysCodes/falio
 # main.py
 
 # Importing Packages
@@ -63,9 +64,9 @@ helpMenu = f"""
 \*Owner of this **BOT** is {owner}
             """
 aboutCommandMenu = f"""
-Hi, I'm MBGTK! I am an open-source discord bot that does what the most popular bots do but is designed to reduce the bots in your server while not having "Fun" commands that clog up your server.
+Hi, I'm Falio! I am an open-source discord bot that does what the most popular bots do but is designed to reduce the bots in your server while not having "Fun" commands that clog up your server.
 
-[Github Page](https://github.com/xNoerPlaysCodes/mbgtk-python/)
+[Github Page](https://github.com/xNoerPlaysCodes/falio/)
 [Official Website](https://xnoerplayscodes.github.io/index.html)
 [Documentation](https://xnoerplayscodes.github.io/docs/docs.html)
 
@@ -79,7 +80,7 @@ sam/sammy (<@1051430553469071380>) - Logo maker 😍😍😍😍😍😍😍
 
 Other information:
 Global Bot Prefix: `{PREFIX}`
-Based on MBGTK.py version {version}
+Based on Falio version {version}
 Hosting Python Version: ||{sys.version}||
 """
 if meme_enabled == 'true':

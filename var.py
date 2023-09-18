@@ -1,13 +1,14 @@
-#       ii           iii    BBBBBBBBBBB     GGGGGGGGGGGGGG      TTTTTTTTTTTTTTTTT       K      K
-#       iii         iiii    B         B     G                           T               K    K
-#       iiiii      iiiii    B         B     G                           T               K  K
-#       iiiiiii   iiiiii    B         B     G                           T               KKK
-#       iiiiiiiiiiiiiiii    BBBBBBBBBB      G                           T               K  K
-#       i              i    B         B     GGGGGGGGGGGGG               T               K   K
-#       i              i    B         B     G           G               T               K     K
-#       i              i    B         B     G           G               T               K      K
-#       i              i    BBBBBBBBBBB     GGGGGGGGGGGGG               T               K       K
-#                                                                                                   .py
+#       iiiiiiiiiiiiiiii        ii              i                   iiiiiiiiiiiiiiiii     oooooooooooooooo
+#       i                      i  i             i                           i             o              o
+#       i                     i    i            i                           i             o              o
+#       i                    i      i           i                           i             o              o
+#       iiiiiiiii           i        i          i                           i             o              o
+#       i                  i----------i         i                           i             o              o
+#       i                 i            i        i                           i             o              o
+#       i                i              i       i                           i             o              o
+#       i               i                i      i                           i             o              o
+#       i              i                  i     i                           i             o              o
+#       i             i                    i    iiiiiiiiiiiiiiii    iiiiiiiiiiiiiiiii     oooooooooooooooo
 #
 # CONFIG / VARIABLES and OTHER STUFF
 #
@@ -37,7 +38,7 @@ def ThrowIllegalExeception(x):
     print(x)
     sys.exit(0)
 
-# MBGTK and regular bot stuff here:
+# Falio and regular bot stuff here:
 # enter bot token here:
 
 tokenBot = "BOT_TOKEN_HERE"
