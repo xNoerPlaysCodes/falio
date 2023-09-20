@@ -37,7 +37,7 @@ version = "Release 1.0.2"
 helpMenu = f"""
 # ```Main```
 `{PREFIX}ping` - Returns Client Latency.
-`{PREFIX}help` - This!
+`{PREFIX}help (Add '--no-dm' for no dming)` - This!
 `{PREFIX}random` <first num> <second num> - Returns a random number with two arguments that you gave.
 # ```Giphy Integration```
 `{PREFIX}meme` - Returns a gif from giphy (Is meme enabled -> {meme_enabled})
@@ -74,7 +74,12 @@ Credits:
 xNoerPlays (<@1044817642143371364>) - Developer
 Techbox (<@906810276081442816>) - Ideas and the sole idea for this bot was his.
 Xavier (<@1087527750539165747>) - Emotional Support XD / Tester of Bot
-sam/sammy (<@1051430553469071380>) - Logo maker 😍😍😍😍😍😍😍
+
+- Bot logo credits go to:
+  - sam/sammy (<@1051430553469071380>) - (old logo)
+  - FreePik for the logo.
+  - JoJo (<@814844232832909352>) for then reducing contrast.
+
 
 ❤️❤️❤️❤️❤️❤️❤️ This took a long time, so consider DMing me (or any of the members above) to give them a happy thankyou <3
 
@@ -235,6 +240,7 @@ except (FileNotFoundError, json.JSONDecodeError):
 # Event: When a message is received in a server the bot is a part of
 @client.event
 async def on_message(message):
+    channel = message.channel
     # Ignore messages from the bot itself to avoid an infinite loop
     if message.author == client.user:
         return
@@ -251,15 +257,15 @@ async def on_message(message):
             stopBot(0)
         else:
             print("A user tried to stop the bot while not being owner.")
-            await message.channel.send(f"Sorry, you're not the owner of the bot, if you think this is a mistake edit the var.py file and replace the blank with username. You are {message.author} and from var.py is {owner}")
+            await channel.send(f"Sorry, you're not the owner of the bot, if you think this is a mistake edit the var.py file and replace the blank with username. You are {message.author} and from var.py is {owner}")
     global tag  # Declare the global tag variable to change it if needed
 
     if message.content.startswith(f"{PREFIX}settag"):
         if meme_enabled == "true":
             tag = message.content[len(f"{PREFIX}settag"):]
-            await message.channel.send(f"Tag set to `{tag}`.")
+            await channel.send(f"Tag set to `{tag}`.")
         elif meme_enabled == "false":
-            await message.channel.send("Meme functionality is disabled in var.py, please change that.")
+            await channel.send("Meme functionality is disabled in var.py, please change that.")
     elif message.content == f"{PREFIX}meme":
         if meme_enabled == "true":
             gif_url = await fetch_gif_with_tag(tag)
@@ -270,26 +276,30 @@ async def on_message(message):
                 )
                 embed.set_footer(text=f"Powered by GIPHY®")
                 embed.set_image(url=gif_url)
-                await message.channel.send(embed=embed)
+                await channel.send(embed=embed)
             else:
-                await message.channel.send("Oops, something went wrong while fetching the GIF.", delete_after=5)
+                await channel.send("Oops, something went wrong while fetching the GIF.", delete_after=5)
         elif meme_enabled == "false":
-            await message.channel.send("Meme functionality is disabled in var.py, please change that.")
-    elif message.content == f"{PREFIX}help":
+            await channel.send("Meme functionality is disabled in var.py, please change that.")
+    elif message.content.startswith(f'{PREFIX}help'):
+        flags = message.content[len(f"{PREFIX}help "):]
         embed = discord.Embed(
             title="Help Menu",
             description=helpMenu,
             color=discord.Color(int(color, 16)),
         )
-        embed.set_footer(text=footer),
-        try:
-            await message.author.send(embed=embed)
-            await message.channel.send("Check your DMs!")
-        except discord.errors.Forbidden:
-            await message.channel.send(embed=embed)
+        if flags == '--no-dm':
+            await channel.send(embed=embed)
+        else:
+            embed.set_footer(text=footer),
+            try:
+                await message.author.send(embed=embed)
+                await channel.send("Check your DMs!")
+            except discord.errors.Forbidden:
+                await channel.send(embed=embed)
 
     elif message.content == f"{PREFIX}ping":
-        og_msg = await message.channel.send(f"Calculating....")
+        og_msg = await channel.send(f"Calculating....")
         await asyncio.sleep(1)
         await og_msg.edit(content=f"Pong! {round(client.latency * 1000)}ms")
     elif message.content.startswith(f"{PREFIX}random"):
@@ -305,24 +315,24 @@ async def on_message(message):
                 color=discord.Color(int(color, 16)),
             )
                 embed.set_footer(text=footer),
-                await message.channel.send(embed=embed)
+                await channel.send(embed=embed)
             else:
                 first = str(args[1])
                 second = str(args[2])
-                await message.channel.send(f"{first} or {second} was not an integer")
+                await channel.send(f"{first} or {second} was not an integer")
         else:
-            await message.channel.send(f"Usage: {PREFIX}random <first num> <second num>")
+            await channel.send(f"Usage: {PREFIX}random <first num> <second num>")
     elif message.content == f"{PREFIX}ticket-add":
         author_name = message.author.name
         user_data = loadHasTicket()
 
         if user_data["users_with_tickets"].get(author_name):
-            await message.channel.send("You already have a ticket.")
+            await channel.send("You already have a ticket.")
             await message.delete()
         else:
             user_data["users_with_tickets"][author_name] = True
             saveHasTicket(user_data)
-            await message.channel.send("Ticket created.")
+            await channel.send("Ticket created.")
             guild = message.guild
             await guild.create_text_channel(f"ticket-{message.author.name}")
             await message.delete()
@@ -338,17 +348,17 @@ async def on_message(message):
             for channel in message.guild.channels:
                 if channel.name.startswith(f"ticket-{author_name}"):
                     await channel.delete()
-                    await message.channel.send("Ticket removed.")
+                    await channel.send("Ticket removed.")
                     await message.delete()
                     return
 
-            await message.channel.send("Ticket channel not found.")
+            await channel.send("Ticket channel not found.")
         else:
-            await message.channel.send("You don't have a ticket to remove.")
+            await channel.send("You don't have a ticket to remove.")
     elif message.content.startswith(f"{PREFIX}say"):
         sayMsg = message.content[len(f"{PREFIX}say"):]
         if sayMsg == blank:
-            await message.channel.send(f"You did not add anything after {PREFIX}say")
+            await channel.send(f"You did not add anything after {PREFIX}say")
             await message.delete()
         else:
             embed = discord.Embed(
@@ -358,14 +368,14 @@ async def on_message(message):
             )
             async with message.channel.typing():
                 await asyncio.sleep(0.5)  # Simulate typing for 2 seconds
-                await message.channel.send(embed=embed)
+                await channel.send(embed=embed)
             await message.delete()
     elif message.content.startswith(f"{PREFIX}osay"):
         if message.author.name == f"{owner}":
             sayMsg = message.content[len(f"{PREFIX}osay"):]
             async with message.channel.typing():
                 await asyncio.sleep(0.5)  # Simulate typing for 2 seconds
-                await message.channel.send(sayMsg)
+                await channel.send(sayMsg)
             await message.delete()
         else:
             return
@@ -374,8 +384,8 @@ async def on_message(message):
             description=aboutCommandMenu,
         color=discord.Color(int(color, 16)),
         )
-        embed.set_footer(text=f"Made with love in discord.py | {footer}"),
-        await message.channel.send(embed=embed)
+        embed.set_footer(icon_url='https://i.imgur.com/i6gXIin.png', text="Made with discord.py")
+        await channel.send(embed=embed)
     elif message.content == f"{PREFIX}serverinfo":
         guild = message.guild
         # Gets emojis as formatted
@@ -393,7 +403,7 @@ Server Name - {guild.name}
 Server Description - {guild.description}
 ```Other```
 Server Member Count - {str(guild.member_count)}
-Server Boost Count - {int(guild.premium_subscription_count)}
+Server Boost Count - {int(guild.premium_subpscription_count)}
 Server Boost Level - {guild.premium_tier}
 Server Emojis - (Click to expose spoiler) ||{emojis}||
 Server Roles - {roles}\n(No you did not just ping everyone.)
@@ -402,7 +412,7 @@ color=discord.Color(int(color, 16)),
     )
         embed.set_thumbnail(url=f"{guild.icon}")
         embed.set_footer(text=footer)
-        await message.channel.send(embed=embed)
+        await channel.send(embed=embed)
 
     elif message.content.startswith(f"{PREFIX}userinfo"):
         user_mentions = message.mentions  # Get mentioned users
@@ -430,7 +440,7 @@ Display Name: {user.display_name}
         embed.set_footer(text=footer)
         embed.set_thumbnail(url=user.avatar)
 
-        await message.channel.send(embed=embed)
+        await channel.send(embed=embed)
 
     elif message.content.startswith(f"{PREFIX}run"):
         if message.author.name == owner:
@@ -440,7 +450,7 @@ Display Name: {user.display_name}
                     command_output = subprocess.check_output(bash_command, shell=True, text=True)
                     # For Python 3.5 and earlier, use: command_output = subprocess.check_output(bash_command, shell=True)
                 except subprocess.CalledProcessError as e:
-                    await message.channel.send(f"`{bash_command}` is not a valid bash command!")
+                    await channel.send(f"`{bash_command}` is not a valid bash command!")
                     await message.delete()
                     command_output = None
 
@@ -451,41 +461,41 @@ Display Name: {user.display_name}
                     color=discord.Color(int(color, 16))
                     )
                     embed.set_footer(text=f"User was {message.author.name} | {footer}")
-                    await message.channel.send(embed=embed)
+                    await channel.send(embed=embed)
                     await message.delete()
                 else:
                     return
             elif bash_command == "":
-                await message.channel.send("Provide a valid bash command to run!")
+                await channel.send("Provide a valid bash command to run!")
                 await message.delete()
 
     elif message.content.startswith(f"{PREFIX}purge"):
         amount = message.content[len(f"{PREFIX}purge"):]
         if amount != "":
             if int(amount) < int(-1):
-                await message.channel.send("Provide a valid number of messages to delete")
+                await channel.send("Provide a valid number of messages to delete")
                 return
             elif int(amount) > 500:
-                await message.channel.send(f"{amount} is greater than the limit of 500!")
+                await channel.send(f"{amount} is greater than the limit of 500!")
             else:
                 if message.author.guild_permissions.manage_messages:
                     try:
                         amount = int(amount)
                         await message.channel.purge(limit=amount + 1)
-                        await message.channel.send(f"Purged {amount} messages", delete_after=2)
+                        await channel.send(f"Purged {amount} messages", delete_after=2)
                     except discord.errors.Forbidden as e:
-                        await message.channel.send(f"Error has occurred and the command could not be executed.\n```\n{e}\n```")
+                        await channel.send(f"Error has occurred and the command could not be executed.\n```\n{e}\n```")
                 else:
-                    await message.channel.send("You do not have enough permissions!")
+                    await channel.send("You do not have enough permissions!")
                     return
         else:
-            await message.channel.send("Please give how many messages to purge!")
+            await channel.send("Please give how many messages to purge!")
 
     elif message.content.startswith(f"{PREFIX}kick"):
         if message.author.guild_permissions.manage_messages:
             command_parts = message.content.split()
             if len(command_parts) < 2:
-                await message.channel.send(f"Usage: {PREFIX}kick <user_mention>")
+                await channel.send(f"Usage: {PREFIX}kick <user_mention>")
                 return
 
             user_id = command_parts[1].strip('<@!>')
@@ -494,15 +504,15 @@ Display Name: {user.display_name}
                 if member:
                     try:
                         await member.kick()
-                        await message.channel.send(f"<@{user_id}> ({member.display_name}) has been kicked from the server.")
+                        await channel.send(f"<@{user_id}> ({member.display_name}) has been kicked from the server.")
                     except discord.Forbidden:
-                        await message.channel.send("I don't have permission to kick members.")
+                        await channel.send("I don't have permission to kick members.")
                 else:
-                    await message.channel.send("User not found.")
+                    await channel.send("User not found.")
             except discord.NotFound:
-                await message.channel.send("User not found.")
+                await channel.send("User not found.")
         else:
-            await message.channel.send("You don't have permission to kick members as you need **manage messages.**")
+            await channel.send("You don't have permission to kick members as you need **manage messages.**")
 
     elif message.content == f"{PREFIX}uptime":
         current_time = datetime.datetime.now()
@@ -515,7 +525,7 @@ Display Name: {user.display_name}
 
         uptime_str = f"{days} days, {hours} hours, {minutes} minutes, {seconds} seconds"
 
-        await message.channel.send(f"Uptime: {uptime_str}")
+        await channel.send(f"Uptime: {uptime_str}")
 
     if message.content == f"{PREFIX}log_start":
         if message.author.guild_permissions.manage_messages:
@@ -534,9 +544,9 @@ Display Name: {user.display_name}
                 with open("log_channel.json", "w") as f:
                     json.dump(server_data, f, indent=4)
 
-                await message.channel.send("Logging enabled for this server and channel.")
+                await channel.send("Logging enabled for this server and channel.")
             else:
-                await message.channel.send("Logging is already enabled for this server and channel.")
+                await channel.send("Logging is already enabled for this server and channel.")
 
     elif message.content == f"{PREFIX}log_stop":
         if message.author.guild_permissions.manage_messages:
@@ -555,9 +565,9 @@ Display Name: {user.display_name}
                 with open("log_channel.json", "w") as f:
                     json.dump(server_data, f, indent=4)
 
-                await message.channel.send("Logging disabled for this server.")
+                await channel.send("Logging disabled for this server.")
             else:
-                await message.channel.send(f"Server logging was not enabled using {PREFIX}log_start.")
+                await channel.send(f"Server logging was not enabled using {PREFIX}log_start.")
         # Load the list of server data from log_channel.json if the file exists
         try:
             with open("log_channel.json", "r") as f:
@@ -573,55 +583,55 @@ Display Name: {user.display_name}
             )
             embed.set_footer(text=footer)
             embed.set_thumbnail(url='https://i.imgur.com/7ggtoIk.png')
-            await message.channel.send(embed=embed)
+            await channel.send(embed=embed)
         else:
-            await message.channel.send(f'Only the owner ({owner}) can use this command.')
+            await channel.send(f'Only the owner ({owner}) can use this command.')
 
     elif message.content.startswith(f'{PREFIX}slowmode'):
         args = message.content.split()
         if len(args) != 2:
-            await message.channel.send(f"Usage: {PREFIX}slowmode <duration>")
+            await channel.send(f"Usage: {PREFIX}slowmode <duration>")
             return
         if message.author.guild_permissions.manage_messages:
             try:
                 duration = int(args[1])
                 if duration < 0 or duration > 21600:  # Set reasonable limits for slow mode (0 to 6 hours)
-                    await message.channel.send("Please provide a valid duration between 0 and 21600 seconds.")
+                    await channel.send("Please provide a valid duration between 0 and 21600 seconds.")
                     return
 
                 await message.channel.edit(slowmode_delay=duration)
-                await message.channel.send(f"Slow mode set to {duration} seconds in this channel.")
+                await channel.send(f"Slow mode set to {duration} seconds in this channel.")
             except ValueError:
-                await message.channel.send("Please provide a valid duration, no need to put `s`, just the number is fine.")
+                await channel.send("Please provide a valid duration, no need to put `s`, just the number is fine.")
         else:
-            await message.channel.send("You do not have enough permissions!")
+            await channel.send("You do not have enough permissions!")
             return
 
     elif message.content.startswith(f'{PREFIX}sm'):
         args = message.content.split()
         if len(args) != 2:
-            await message.channel.send(f"Usage: {PREFIX}sm <duration>")
+            await channel.send(f"Usage: {PREFIX}sm <duration>")
             return
         if message.author.guild_permissions.manage_messages:
             try:
                 duration = int(args[1])
                 if duration < 0 or duration > 21600:  # Set reasonable limits for slow mode (0 to 6 hours)
-                    await message.channel.send("Please provide a valid duration between 0 and 21600 seconds.")
+                    await channel.send("Please provide a valid duration between 0 and 21600 seconds.")
                     return
 
                 await message.channel.edit(slowmode_delay=duration)
-                await message.channel.send(f"Slowmode set to {duration} seconds in this channel.")
+                await channel.send(f"Slowmode set to {duration} seconds in this channel.")
             except ValueError:
-                await message.channel.send("Please provide a valid duration, no need to put `s`, just the number is fine.")
+                await channel.send("Please provide a valid duration, no need to put `s`, just the number is fine.")
         else:
-            await message.channel.send("You do not have enough permissions!")
+            await channel.send("You do not have enough permissions!")
             return
 
     elif message.content.startswith(f"{PREFIX}ban"):
         if message.author.guild_permissions.ban_members:
             command_parts = message.content.split()
             if len(command_parts) < 2:
-                await message.channel.send(f"Usage: {PREFIX}ban <user_mention>")
+                await channel.send(f"Usage: {PREFIX}ban <user_mention>")
                 return
 
             user_id = command_parts[1].strip('<@!>')
@@ -630,43 +640,42 @@ Display Name: {user.display_name}
                 if member:
                     try:
                         await member.ban()
-                        await message.channel.send(f"<@{user_id}> ({member.display_name}) has been **banned** from the server.")
+                        await channel.send(f"<@{user_id}> ({member.display_name}) has been **banned** from the server.")
                     except discord.Forbidden:
-                        await message.channel.send("I don't have permission to ban members.")
+                        await channel.send("I don't have permission to ban members.")
                 else:
-                    await message.channel.send("User not found.")
+                    await channel.send("User not found.")
             except discord.NotFound:
-                await message.channel.send("User not found.")
+                await channel.send("User not found.")
         else:
-            await message.channel.send("You don't have permission to ban members as you need **ban members** permission.")
+            await channel.send("You don't have permission to ban members as you need **ban members** permission.")
 
     elif message.content.startswith(f"{PREFIX}eval"):
         evalCMD = message.content[len(f"{PREFIX}eval"):]
         if evalCMD == '':
-            await message.channel.send("Input must not be **None**")
+            await channel.send("Input must not be **None**")
             return
         else:
             if message.author.name == owner:
                 try:
-                    result = eval(evalCMD)
+                    result = exec(evalCMD)
                     embed = discord.Embed(
                         title=f"Code output:",
                         description=f"```\n{result}\n```",
                     color=discord.Color(int(color, 16))
                     )
                     embed.set_footer(text=footer)
-                    await message.channel.send(embed=embed)
+                    await channel.send(embed=embed)
                 except SyntaxError as e:
-                    await message.channel.send(f"Fatal error.\n```\nTYPE=SyntaxError\n{e}\n```")
+                    await channel.send(f"Fatal error.\n```\nTYPE=SyntaxError\n{e}\n```")
                     return
                 except ValueError as ve:
-                    await message.channel.send(f"Fatal error.\n```\nTYPE=ValueError\n{ve}\n```")
+                    await channel.send(f"Fatal error.\n```\nTYPE=ValueError\n{ve}\n```")
                     return
                 except Exception as x:
-                    await message.channel.send(f"Fatal error.\n```\nTYPE=Exception\n{x}\n```")
+                    await channel.send(f"Fatal error.\n```\nTYPE=Exception\n{x}\n```")
                     return
             elif message.author.name != owner:
                 return
-
 # Run the bot with the provided token
 client.run(TOKEN)
